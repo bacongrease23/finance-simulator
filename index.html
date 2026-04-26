@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metropolis</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- LOADING SCREEN -->
+  <div id="screen-loading" class="screen active">
+    <div class="splash-box">
+      <h1 class="game-title">METROPOLIS</h1>
+      <p class="game-subtitle">Financial Literacy Simulator</p>
+      <hr class="divider">
+      <div class="input-group">
+        <input type="text" id="input-firstname" placeholder="First name" autocomplete="off" />
+        <input type="text" id="input-lastname"  placeholder="Last name"  autocomplete="off" />
+        <button onclick="handleLogin()">Enter the City</button>
+      </div>
+      <p id="login-error" class="error-msg" style="display:none"></p>
+      <button class="link-btn" onclick="showScreen('screen-admin-login')">Admin Login</button>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN -->
+  <div id="screen-admin-login" class="screen">
+    <div class="splash-box">
+      <h1 class="game-title">Admin Panel</h1>
+      <hr class="divider">
+      <div class="input-group">
+        <input type="password" id="input-admin-pass" placeholder="Password" />
+        <button onclick="handleAdminLogin()">Enter</button>
+      </div>
+      <p id="admin-login-error" class="error-msg" style="display:none"></p>
+      <button class="link-btn" onclick="showScreen('screen-loading')">Back</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="screen-admin" class="screen">
+    <div class="admin-wrap">
+      <div class="admin-header">
+        <h1>Admin Panel</h1>
+        <button onclick="showScreen('screen-loading')">Exit</button>
+      </div>
+      <div class="admin-card">
+        <h2>First-Time Setup</h2>
+        <p>Run this ONCE to populate the database with apartments, groceries, and 500 jobs.</p>
+        <button onclick="runSetup()" id="btn-setup">Run First-Time Setup</button>
+        <p id="setup-status" class="feedback"></p>
+      </div>
+      <div class="admin-card">
+        <h2>Trigger Event</h2>
+        <select id="select-player"></select>
+        <select id="select-event">
+          <option value="fraud_charge">Fraud Charge</option>
+          <option value="eviction_warning">Eviction Warning</option>
+          <option value="eviction_notice">Eviction Notice</option>
+          <option value="fired">Fired</option>
+          <option value="bonus">Bonus ($2,000)</option>
+          <option value="promotion">Promotion (+15%)</option>
+          <option value="raise">Raise (+5%)</option>
+          <option value="emergency">Emergency Expense</option>
+        </select>
+        <button onclick="triggerEvent()">Trigger</button>
+        <p id="event-status" class="feedback"></p>
+      </div>
+      <div class="admin-card">
+        <h2>Pending Student Requests</h2>
+        <div id="requests-list"><p>Loading...</p></div>
+      </div>
+      <div class="admin-card">
+        <h2>All Students</h2>
+        <div id="scoreboard"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN (placeholder) -->
+  <div id="screen-game" class="screen">
+    <div class="game-wrap">
+      <div class="game-header">
+        <span id="game-playername"></span>
+        <span id="game-date"></span>
+        <span id="game-balance"></span>
+        <button onclick="handleLogout()">Log Out</button>
+      </div>
+      <div class="game-body">
+        <p>Firebase connected. City map coming next.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { FirestoreDB } from './firebase-schema.js';
+    import { seedDatabase }  from './seed-data.js';
+    import { seedJobs }      from './job-generator.js';
+
+    const ADMIN_PASSWORD = "metropolis2026";
+    let currentPlayer = null;
+
+    window.showScreen = function(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    };
+
+    window.handleLogin = async function() {
+      const first = document.getElementById('input-firstname').value.trim();
+      const last  = document.getElementById('input-lastname').value.trim();
+      const err   = document.getElementById('login-error');
+      if (!first || !last) {
+        err.textContent = "Please enter your first and last name.";
+        err.style.display = "block";
+        return;
+      }
+      err.style.display = "none";
+      const uid = (first[0] + last).toLowerCase().replace(/[^a-z]/g, '');
+      try {
+        let player = await FirestoreDB.getPlayer(uid);
+        if (!player) {
+          player = await FirestoreDB.createPlayer(uid, first, last);
+        } else {
+          await FirestoreDB.advanceTime(uid);
+          player = await FirestoreDB.getPlayer(uid);
+        }
+        currentPlayer = player;
+        renderGame(player);
+        showScreen('screen-game');
+      } catch(e) {
+        err.textContent = "Connection error: " + e.message;
+        err.style.display = "block";
+        console.error(e);
+      }
+    };
+
+    window.handleLogout = async function() {
+      if (currentPlayer) {
+        await FirestoreDB.advanceTime(currentPlayer.uid);
+      }
+      currentPlayer = null;
+      showScreen('screen-loading');
+    };
+
+    function renderGame(player) {
+      document.getElementById('game-playername').textContent = player.firstName + ' ' + player.lastName;
+      document.getElementById('game-date').textContent = 'Month ' + player.gameMonth + ', Day ' + player.gameDay;
+      document.getElementById('game-balance').textContent = '$' + Number(player.checkingBalance).toFixed(2);
+    }
+
+    window.handleAdminLogin = function() {
+      const pass = document.getElementById('input-admin-pass').value;
+      const err  = document.getElementById('admin-login-error');
+      if (pass === ADMIN_PASSWORD) {
+        err.style.display = "none";
+        showScreen('screen-admin');
+        loadAdminData();
+      } else {
+        err.textContent = "Incorrect password.";
+        err.style.display = "block";
+      }
+    };
+
+    async function loadAdminData() {
+      const players = await FirestoreDB.getAllPlayers();
+      const sel = document.getElementById('select-player');
+      sel.innerHTML = players.length
+        ? players.map(p => '<option value="' + p.uid + '">' + p.firstName + ' ' + p.lastName + '</option>').join('')
+        : '<option>No students yet</option>';
+      const board = document.getElementById('scoreboard');
+      board.innerHTML = players.length
+        ? '<table><thead><tr><th>Name</th><th>Balance</th><th>Job</th><th>Rent</th></tr></thead><tbody>'
+          + players.map(p =>
+            '<tr><td>' + p.firstName + ' ' + p.lastName + '</td><td>$' + Number(p.checkingBalance).toFixed(2) + '</td><td>' + (p.jobTitle || 'None') + '</td><td>$' + (p.monthlyRent || 0) + '/mo</td></tr>'
+          ).join('') + '</tbody></table>'
+        : '<p>No students yet.</p>';
+      FirestoreDB.listenToRequests(requests => {
+        const list = document.getElementById('requests-list');
+        list.innerHTML = requests.length
+          ? requests.map(r =>
+            '<div class="request-card"><strong>' + r.fromName + '</strong> — ' + r.type + '<br><em>' + r.subject + '</em><br>' + r.body + '<br>'
+            + '<button onclick="resolveRequest(\'' + r.requestId + '\', true)">Approve</button> '
+            + '<button onclick="resolveRequest(\'' + r.requestId + '\', false)">Deny</button></div>'
+          ).join('')
+          : '<p>No pending requests.</p>';
+      });
+    }
+
+    window.triggerEvent = async function() {
+      const uid    = document.getElementById('select-player').value;
+      const type   = document.getElementById('select-event').value;
+      const status = document.getElementById('event-status');
+      const payloads = {
+        fraud_charge: { amount: 847.50, merchant: "ONLINE PURCHASE #8847" },
+        bonus:        { amount: 2000 },
+        emergency:    { amount: 1500, description: "Unexpected car repair" },
+      };
+      try {
+        await FirestoreDB.adminTriggerEvent(uid, type, payloads[type] || {});
+        status.textContent = "Event queued. Delivers on next player login.";
+      } catch(e) {
+        status.textContent = "Error: " + e.message;
+      }
+    };
+
+    window.resolveRequest = async function(requestId, approved) {
+      try {
+        await FirestoreDB.resolveRequest(requestId, { approved, adminNote: "" });
+      } catch(e) { console.error(e); }
+    };
+
+    window.runSetup = async function() {
+      const btn    = document.getElementById('btn-setup');
+      const status = document.getElementById('setup-status');
+      btn.disabled = true;
+      status.textContent = "Seeding apartments and groceries...";
+      try {
+        await seedDatabase();
+        status.textContent = "Done. Now seeding 500 jobs — this takes about 60 seconds...";
+        await seedJobs();
+        status.textContent = "All done! Database is fully seeded.";
+      } catch(e) {
+        status.textContent = "Error: " + e.message;
+        btn.disabled = false;
+        console.error(e);
+      }
+    };
+
+  </script>
+</body>
+</html>
