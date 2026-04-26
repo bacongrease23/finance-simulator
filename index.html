@@ -3,51 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Metropolis</title>
+  <title>Capital Heights</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- LOADING SCREEN -->
-  <div id="screen-loading" class="screen active">
+  <!-- ══════════════════════════════════════════════
+       SCREENS — only one is visible at a time
+       controlled by showScreen(id)
+  ══════════════════════════════════════════════ -->
+
+  <!-- 1. LOGIN -->
+  <div id="screen-login" class="screen active">
     <div class="splash-box">
-      <h1 class="game-title">METROPOLIS</h1>
+      <h1 class="game-title">CAPITAL HEIGHTS</h1>
       <p class="game-subtitle">Financial Literacy Simulator</p>
       <hr class="divider">
       <div class="input-group">
-        <input type="text" id="input-firstname" placeholder="First name" autocomplete="off" />
-        <input type="text" id="input-lastname"  placeholder="Last name"  autocomplete="off" />
-        <button onclick="handleLogin()">Enter the City</button>
+        <input type="text" id="input-firstname" placeholder="First name" autocomplete="off"/>
+        <input type="text" id="input-lastname"  placeholder="Last name"  autocomplete="off"/>
+        <button onclick="handleLogin()">Enter the City →</button>
       </div>
       <p id="login-error" class="error-msg" style="display:none"></p>
       <button class="link-btn" onclick="showScreen('screen-admin-login')">Admin Login</button>
     </div>
   </div>
 
-  <!-- ADMIN LOGIN -->
+  <!-- 2. ADMIN LOGIN -->
   <div id="screen-admin-login" class="screen">
     <div class="splash-box">
       <h1 class="game-title">Admin Panel</h1>
       <hr class="divider">
       <div class="input-group">
-        <input type="password" id="input-admin-pass" placeholder="Password" />
-        <button onclick="handleAdminLogin()">Enter</button>
+        <input type="password" id="input-admin-pass" placeholder="Password"/>
+        <button onclick="handleAdminLogin()">Enter →</button>
       </div>
       <p id="admin-login-error" class="error-msg" style="display:none"></p>
-      <button class="link-btn" onclick="showScreen('screen-loading')">Back</button>
+      <button class="link-btn" onclick="showScreen('screen-login')">← Back</button>
     </div>
   </div>
 
-  <!-- ADMIN PANEL -->
+  <!-- 3. ADMIN PANEL -->
   <div id="screen-admin" class="screen">
     <div class="admin-wrap">
       <div class="admin-header">
-        <h1>Admin Panel</h1>
-        <button onclick="showScreen('screen-loading')">Exit</button>
+        <h1>Admin Panel — Capital Heights</h1>
+        <button onclick="showScreen('screen-login')">Exit</button>
       </div>
       <div class="admin-card">
         <h2>First-Time Setup</h2>
-        <p>Run this ONCE to populate the database with apartments, groceries, and 500 jobs.</p>
+        <p>Run ONCE to seed apartments, groceries, and 500 jobs into Firebase.</p>
         <button onclick="runSetup()" id="btn-setup">Run First-Time Setup</button>
         <p id="setup-status" class="feedback"></p>
       </div>
@@ -78,34 +83,108 @@
     </div>
   </div>
 
-  <!-- GAME SCREEN (placeholder) -->
-  <div id="screen-game" class="screen">
-    <div class="game-wrap">
-      <div class="game-header">
-        <span id="game-playername"></span>
-        <span id="game-date"></span>
-        <span id="game-balance"></span>
-        <button onclick="handleLogout()">Log Out</button>
-      </div>
-      <div class="game-body">
-        <p>Firebase connected. City map coming next.</p>
-      </div>
+  <!-- 4. ONBOARDING (injected by onboarding.js) -->
+  <div id="screen-onboarding" class="screen"></div>
+
+  <!-- 5. CITY MAP (injected by citymap.js) -->
+  <div id="screen-citymap" class="screen"></div>
+
+  <!-- 6. HOME (injected by home.js) -->
+  <div id="screen-home" class="screen"></div>
+
+  <!-- 7. COMPUTER OS (injected by computer.js) -->
+  <div id="screen-computer" class="screen"></div>
+
+  <!-- 8. EMAIL (injected by email.js) -->
+  <div id="screen-email" class="screen"></div>
+
+  <!-- 9. BANKING (injected by banking.js) -->
+  <div id="screen-banking" class="screen"></div>
+
+  <!-- 10. JOB BOARD (injected by jobboard.js) -->
+  <div id="screen-jobboard" class="screen"></div>
+
+  <!-- 11. HOUSING (injected by housing.js) -->
+  <div id="screen-housing" class="screen"></div>
+
+  <!-- 12. RENT (injected by rent.js) -->
+  <div id="screen-rent" class="screen"></div>
+
+  <!-- 13. GROCERY (injected by grocery.js) -->
+  <div id="screen-grocery" class="screen"></div>
+
+  <!-- 14. TODOS (injected by todos.js) -->
+  <div id="screen-todos" class="screen"></div>
+
+  <!-- 15. CALENDAR (injected by calendar.js) -->
+  <div id="screen-calendar" class="screen"></div>
+
+  <!-- ══════════════════════════════════════════════
+       DEV TOOLBAR — press ` (backtick) to toggle
+       Lets you jump to any screen instantly
+       WITHOUT playing through the game
+  ══════════════════════════════════════════════ -->
+  <div id="dev-toolbar" style="display:none;">
+    <div class="dev-inner">
+      <span class="dev-label">DEV SHORTCUTS</span>
+      <button onclick="devGoto('screen-login')">Login</button>
+      <button onclick="devGoto('screen-onboarding')">Onboarding</button>
+      <button onclick="devGoto('screen-citymap')">City Map</button>
+      <button onclick="devGoto('screen-home')">Home</button>
+      <button onclick="devGoto('screen-computer')">Computer</button>
+      <button onclick="devGoto('screen-email')">Email</button>
+      <button onclick="devGoto('screen-banking')">Banking</button>
+      <button onclick="devGoto('screen-jobboard')">Job Board</button>
+      <button onclick="devGoto('screen-housing')">Housing</button>
+      <button onclick="devGoto('screen-rent')">Rent</button>
+      <button onclick="devGoto('screen-grocery')">Grocery</button>
+      <button onclick="devGoto('screen-todos')">To-Do</button>
+      <button onclick="devGoto('screen-calendar')">Calendar</button>
+      <button onclick="devGoto('screen-admin')">Admin</button>
+      <span class="dev-label" style="margin-left:12px;">INJECT TEST PLAYER</span>
+      <button onclick="devInjectPlayer()">Use Test Player</button>
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════ -->
   <script type="module">
-    import { FirestoreDB } from './firebase-schema.js';
-    import { seedDatabase }  from './seed-data.js';
-    import { seedJobs }      from './job-generator.js';
+    import { FirestoreDB }  from './firebase-schema.js';
+    import { seedDatabase } from './seed-data.js';
+    import { seedJobs }     from './job-generator.js';
+
+    import './screens/onboarding.js';
+    import './screens/citymap.js';
+    import './screens/home.js';
+    import './screens/computer.js';
+    import './screens/email.js';
+    import './screens/banking.js';
+    import './screens/jobboard.js';
+    import './screens/housing.js';
+    import './screens/rent.js';
+    import './screens/grocery.js';
+    import './screens/todos.js';
+    import './screens/calendar.js';
 
     const ADMIN_PASSWORD = "metropolis2026";
-    let currentPlayer = null;
+    let currentPlayer    = null;
 
-    window.showScreen = function(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+    // ── Global state (screens read this) ──────────
+    window.GameState = {
+      get player()  { return currentPlayer; },
+      set player(p) { currentPlayer = p; },
+      FirestoreDB,
     };
 
+    // ── Screen switcher ───────────────────────────
+    window.showScreen = function(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    };
+
+    // ── Login ─────────────────────────────────────
     window.handleLogin = async function() {
       const first = document.getElementById('input-firstname').value.trim();
       const last  = document.getElementById('input-lastname').value.trim();
@@ -121,13 +200,21 @@
         let player = await FirestoreDB.getPlayer(uid);
         if (!player) {
           player = await FirestoreDB.createPlayer(uid, first, last);
+          window.GameState.player = player;
+          showScreen('screen-onboarding');
+          if (window.initOnboarding) window.initOnboarding(player);
         } else {
-          await FirestoreDB.advanceTime(uid);
+          const timeResult = await FirestoreDB.advanceTime(uid);
           player = await FirestoreDB.getPlayer(uid);
+          window.GameState.player = player;
+          if (player.onboardingStep !== 'complete') {
+            showScreen('screen-onboarding');
+            if (window.initOnboarding) window.initOnboarding(player);
+          } else {
+            showScreen('screen-home');
+            if (window.initHome) window.initHome(player);
+          }
         }
-        currentPlayer = player;
-        renderGame(player);
-        showScreen('screen-game');
       } catch(e) {
         err.textContent = "Connection error: " + e.message;
         err.style.display = "block";
@@ -135,20 +222,17 @@
       }
     };
 
+    // ── Logout ────────────────────────────────────
     window.handleLogout = async function() {
       if (currentPlayer) {
         await FirestoreDB.advanceTime(currentPlayer.uid);
       }
       currentPlayer = null;
-      showScreen('screen-loading');
+      window.GameState.player = null;
+      showScreen('screen-login');
     };
 
-    function renderGame(player) {
-      document.getElementById('game-playername').textContent = player.firstName + ' ' + player.lastName;
-      document.getElementById('game-date').textContent = 'Month ' + player.gameMonth + ', Day ' + player.gameDay;
-      document.getElementById('game-balance').textContent = '$' + Number(player.checkingBalance).toFixed(2);
-    }
-
+    // ── Admin login ───────────────────────────────
     window.handleAdminLogin = function() {
       const pass = document.getElementById('input-admin-pass').value;
       const err  = document.getElementById('admin-login-error');
@@ -162,26 +246,27 @@
       }
     };
 
+    // ── Admin data ────────────────────────────────
     async function loadAdminData() {
       const players = await FirestoreDB.getAllPlayers();
       const sel = document.getElementById('select-player');
       sel.innerHTML = players.length
-        ? players.map(p => '<option value="' + p.uid + '">' + p.firstName + ' ' + p.lastName + '</option>').join('')
+        ? players.map(p => '<option value="'+p.uid+'">'+p.firstName+' '+p.lastName+'</option>').join('')
         : '<option>No students yet</option>';
       const board = document.getElementById('scoreboard');
       board.innerHTML = players.length
-        ? '<table><thead><tr><th>Name</th><th>Balance</th><th>Job</th><th>Rent</th></tr></thead><tbody>'
+        ? '<table><thead><tr><th>Name</th><th>Balance</th><th>Job</th><th>Rent</th><th>Step</th></tr></thead><tbody>'
           + players.map(p =>
-            '<tr><td>' + p.firstName + ' ' + p.lastName + '</td><td>$' + Number(p.checkingBalance).toFixed(2) + '</td><td>' + (p.jobTitle || 'None') + '</td><td>$' + (p.monthlyRent || 0) + '/mo</td></tr>'
+            '<tr><td>'+p.firstName+' '+p.lastName+'</td><td>$'+Number(p.checkingBalance).toFixed(2)+'</td><td>'+(p.jobTitle||'None')+'</td><td>$'+(p.monthlyRent||0)+'/mo</td><td>'+p.onboardingStep+'</td></tr>'
           ).join('') + '</tbody></table>'
         : '<p>No students yet.</p>';
       FirestoreDB.listenToRequests(requests => {
         const list = document.getElementById('requests-list');
         list.innerHTML = requests.length
           ? requests.map(r =>
-            '<div class="request-card"><strong>' + r.fromName + '</strong> — ' + r.type + '<br><em>' + r.subject + '</em><br>' + r.body + '<br>'
-            + '<button onclick="resolveRequest(\'' + r.requestId + '\', true)">Approve</button> '
-            + '<button onclick="resolveRequest(\'' + r.requestId + '\', false)">Deny</button></div>'
+            '<div class="request-card"><strong>'+r.fromName+'</strong> — '+r.type+'<br><em>'+r.subject+'</em><br>'+r.body+'<br>'
+            +'<button onclick="resolveRequest(\''+r.requestId+'\', true)">Approve</button> '
+            +'<button onclick="resolveRequest(\''+r.requestId+'\', false)">Deny</button></div>'
           ).join('')
           : '<p>No pending requests.</p>';
       });
@@ -199,15 +284,12 @@
       try {
         await FirestoreDB.adminTriggerEvent(uid, type, payloads[type] || {});
         status.textContent = "Event queued. Delivers on next player login.";
-      } catch(e) {
-        status.textContent = "Error: " + e.message;
-      }
+      } catch(e) { status.textContent = "Error: " + e.message; }
     };
 
     window.resolveRequest = async function(requestId, approved) {
-      try {
-        await FirestoreDB.resolveRequest(requestId, { approved, adminNote: "" });
-      } catch(e) { console.error(e); }
+      try { await FirestoreDB.resolveRequest(requestId, { approved, adminNote: "" }); }
+      catch(e) { console.error(e); }
     };
 
     window.runSetup = async function() {
@@ -217,16 +299,73 @@
       status.textContent = "Seeding apartments and groceries...";
       try {
         await seedDatabase();
-        status.textContent = "Done. Now seeding 500 jobs — this takes about 60 seconds...";
+        status.textContent = "Done. Now seeding 500 jobs — about 60 seconds...";
         await seedJobs();
-        status.textContent = "All done! Database is fully seeded.";
+        status.textContent = "All done! Database fully seeded.";
       } catch(e) {
         status.textContent = "Error: " + e.message;
         btn.disabled = false;
-        console.error(e);
       }
     };
 
+    // ── DEV TOOLBAR ───────────────────────────────
+    // Press backtick ` to show/hide
+    document.addEventListener('keydown', e => {
+      if (e.key === '`') {
+        const tb = document.getElementById('dev-toolbar');
+        tb.style.display = tb.style.display === 'none' ? 'flex' : 'none';
+      }
+    });
+
+    window.devGoto = function(screenId) {
+      showScreen(screenId);
+      const p = window.GameState.player;
+      if (screenId === 'screen-onboarding' && window.initOnboarding) window.initOnboarding(p);
+      if (screenId === 'screen-citymap'    && window.initCityMap)    window.initCityMap(p);
+      if (screenId === 'screen-home'       && window.initHome)       window.initHome(p);
+      if (screenId === 'screen-computer'   && window.initComputer)   window.initComputer(p);
+      if (screenId === 'screen-email'      && window.initEmail)      window.initEmail(p);
+      if (screenId === 'screen-banking'    && window.initBanking)    window.initBanking(p);
+      if (screenId === 'screen-jobboard'   && window.initJobBoard)   window.initJobBoard(p);
+      if (screenId === 'screen-housing'    && window.initHousing)    window.initHousing(p);
+      if (screenId === 'screen-rent'       && window.initRent)       window.initRent(p);
+      if (screenId === 'screen-grocery'    && window.initGrocery)    window.initGrocery(p);
+      if (screenId === 'screen-todos'      && window.initTodos)      window.initTodos(p);
+      if (screenId === 'screen-calendar'   && window.initCalendar)   window.initCalendar(p);
+      if (screenId === 'screen-admin')     loadAdminData();
+    };
+
+    // Injects a fake test player so you can test screens
+    // without logging in as a real student
+    window.devInjectPlayer = async function() {
+      try {
+        let p = await FirestoreDB.getPlayer('devtest');
+        if (!p) {
+          p = await FirestoreDB.createPlayer('devtest', 'Dev', 'Test');
+          // Give the test player a job and apartment so all screens work
+          await FirestoreDB.updatePlayer('devtest', {
+            onboardingStep:  'complete',
+            jobTitle:        'Junior Financial Analyst',
+            employer:        'Merriweather Capital Group',
+            annualSalary:    58000,
+            checkingBalance: 3500,
+            savingsBalance:  1000,
+            apartmentId:     'MH-1A',
+            apartmentName:   'Meridian Heights',
+            apartmentUnit:   '1A',
+            address:         '1240 Meridian Ave, Arlington, VA',
+            monthlyRent:     2150,
+            rentPolicyId:    'policy_a',
+            groceryMeter:    65,
+          });
+          p = await FirestoreDB.getPlayer('devtest');
+        }
+        window.GameState.player = p;
+        alert('Test player injected: Dev Test\nBalance: $'+p.checkingBalance+'\nPress backtick and choose a screen.');
+      } catch(e) { alert('Error: ' + e.message); }
+    };
+
   </script>
+
 </body>
 </html>
