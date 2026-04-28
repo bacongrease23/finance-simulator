@@ -20,8 +20,8 @@
       <p class="game-subtitle">Financial Literacy Simulator</p>
       <hr class="divider">
       <div class="input-group">
-        <input type="text" id="input-firstname" placeholder="First name" autocomplete="off"/>
-        <input type="text" id="input-lastname"  placeholder="Last name"  autocomplete="off"/>
+        <input type="text" id="input-firstname" placeholder="First name" autocomplete="off" onkeydown="if(event.key==='Enter')document.getElementById('input-lastname').focus()"/>
+        <input type="text" id="input-lastname"  placeholder="Last name"  autocomplete="off" onkeydown="if(event.key==='Enter')handleLogin()"/>
         <button onclick="handleLogin()">Enter the City →</button>
       </div>
       <p id="login-error" class="error-msg" style="display:none"></p>
@@ -185,13 +185,6 @@
     };
 
     // ── Login ─────────────────────────────────────
-    // Allow pressing Enter to log in
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && document.getElementById('screen-login').classList.contains('active')) {
-        handleLogin();
-      }
-    });
-
     window.handleLogin = async function() {
       const first = document.getElementById('input-firstname').value.trim();
       const last  = document.getElementById('input-lastname').value.trim();
