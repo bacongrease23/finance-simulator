@@ -536,3 +536,49 @@ table td { padding: 8px 12px; border-bottom: 1px solid #1e1e1e; }
   background: #1e1a0a;
   color: #f5c842;
 }
+
+/* ── Logout button on onboarding screens ── */
+.ob-logout {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 8px 0;
+  text-align: left;
+  display: block;
+  margin-bottom: 8px;
+  transition: color 0.15s;
+}
+.ob-logout:hover { color: #999; }
+
+/* ── General Studies card fills the grid spot ── */
+.cat-general-card {
+  background: #111 !important;
+  border: 2px dashed #444 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.cat-general-card .cat-label { color: #666 !important; }
+.cat-general-sub {
+  font-size: 0.72rem;
+  color: #444;
+  text-align: center;
+}
+
+/* ── GPA display on results ── */
+.results-gpa {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f5c842;
+  margin: 8px 0 16px;
+}
+.results-honor {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #aaa;
+  margin-left: 10px;
+}
