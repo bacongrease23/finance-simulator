@@ -255,9 +255,10 @@
         : '<option>No students yet</option>';
       const board = document.getElementById('scoreboard');
       board.innerHTML = players.length
-        ? '<table><thead><tr><th>Name</th><th>Balance</th><th>Job</th><th>Rent</th><th>Step</th></tr></thead><tbody>'
+        ? '<table><thead><tr><th>Name</th><th>Balance</th><th>Job</th><th>Rent</th><th>Step</th><th>Action</th></tr></thead><tbody>'
           + players.map(p =>
-            '<tr><td>'+p.firstName+' '+p.lastName+'</td><td>$'+Number(p.checkingBalance).toFixed(2)+'</td><td>'+(p.jobTitle||'None')+'</td><td>$'+(p.monthlyRent||0)+'/mo</td><td>'+p.onboardingStep+'</td></tr>'
+            '<tr><td>'+p.firstName+' '+p.lastName+'</td><td>$'+Number(p.checkingBalance).toFixed(2)+'</td><td>'+(p.jobTitle||'None')+'</td><td>$'+(p.monthlyRent||0)+'/mo</td><td>'+p.onboardingStep+'</td>'
+            +'<td><button class="delete-btn" onclick="deletePlayer(\''+p.uid+'\',\''+p.firstName+' '+p.lastName+'\')">Delete</button></td></tr>'
           ).join('') + '</tbody></table>'
         : '<p>No students yet.</p>';
       FirestoreDB.listenToRequests(requests => {
@@ -290,6 +291,27 @@
     window.resolveRequest = async function(requestId, approved) {
       try { await FirestoreDB.resolveRequest(requestId, { approved, adminNote: "" }); }
       catch(e) { console.error(e); }
+    };
+
+    window.deletePlayer = async function(uid, name) {
+      // First confirmation
+      if (!confirm('DELETE PLAYER: ' + name + '\n\nThis will permanently delete all their data. Are you sure?')) return;
+      // Second confirmation
+      if (!confirm('FINAL WARNING: This cannot be undone.\n\nType OK to confirm deletion of ' + name + '.')) return;
+      try {
+        // Delete subcollections first
+        const { collection, getDocs, deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        const { db } = await import('./firebase-schema.js');
+        for (const sub of ['emails','todos','transactions']) {
+          const snap = await getDocs(collection(db, 'players', uid, sub));
+          for (const d of snap.docs) await deleteDoc(d.ref);
+        }
+        await deleteDoc(doc(db, 'players', uid));
+        alert(name + ' has been deleted.');
+        loadAdminData();
+      } catch(e) {
+        alert('Error deleting player: ' + e.message);
+      }
     };
 
     window.runSetup = async function() {

@@ -438,3 +438,35 @@ table td { padding: 8px 12px; border-bottom: 1px solid #1e1e1e; }
 .review-q       { color: #ccc; font-size: 0.9rem; margin-bottom: 4px; }
 .review-wrong   { color: #e05252; font-size: 0.85rem; }
 .review-correct { color: #6fcf97; font-size: 0.85rem; }
+
+/* ── Degree categories ── */
+.degree-category { margin-bottom: 24px; }
+.degree-cat-label {
+  color: #f5c842;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+/* ── Drop class link ── */
+.drop-link {
+  color: #e05252;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+.drop-link:hover { color: #f06262; }
+
+/* ── Admin delete button ── */
+.delete-btn {
+  background: #3a1010 !important;
+  border: 1px solid #6a2020 !important;
+  color: #e05252 !important;
+}
+.delete-btn:hover {
+  background: #e05252 !important;
+  color: white !important;
+}
