@@ -185,6 +185,13 @@
     };
 
     // ── Login ─────────────────────────────────────
+    // Allow pressing Enter to log in
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && document.getElementById('screen-login').classList.contains('active')) {
+        handleLogin();
+      }
+    });
+
     window.handleLogin = async function() {
       const first = document.getElementById('input-firstname').value.trim();
       const last  = document.getElementById('input-lastname').value.trim();
