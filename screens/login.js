@@ -149,9 +149,11 @@ function lgRenderNewSelect(el) {
             </div>`;
         }).join('')}
       </div>
-      <button class="lg-back-btn" onclick="lg.step='landing';lgRender()">← Back</button>
+      <button class="lg-back-btn" onclick="lgBackToLanding()">← Back</button>
     </div>`;
 }
+
+window.lgBackToLanding = function() { lg.step = 'landing'; lgRender(); };
 
 window.lgNewSelectChar = function(id) {
   lg.selectedChar = LG_CHARACTERS.find(c => c.id === id);
@@ -187,7 +189,7 @@ function lgRenderNewPin(el) {
             </button>`).join('')}
         </div>
         <p id="lg-pin-error" class="lg-pin-error" style="display:none"></p>
-        <button class="lg-back-btn" onclick="${isConfirm ? "lg.pinStep='enter';lg.pin='';lg.pinConfirm='';lgRender()" : "lg.step='new-select';lgRender()"}">← Back</button>
+        <button class="lg-back-btn" onclick="lgNewPinBack()">← Back</button>
       </div>
     </div>`;
 }
@@ -376,7 +378,7 @@ function lgRenderRetSelect(el) {
         }).join('')}
       </div>
       ${claimed.length === 0 ? '<p style="color:#555;text-align:center;">No returning players yet this season.</p>' : ''}
-      <button class="lg-back-btn" onclick="lg.step='landing';lgRender()">← Back</button>
+      <button class="lg-back-btn" onclick="lgBackToLanding()">← Back</button>
     </div>`;
 }
 
