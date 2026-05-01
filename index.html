@@ -207,12 +207,17 @@
           const timeResult = await FirestoreDB.advanceTime(uid);
           player = await FirestoreDB.getPlayer(uid);
           window.GameState.player = player;
-          if (player.onboardingStep !== 'complete') {
+          const step = player.onboardingStep;
+          const inOnboarding = !step || step === 'character' || step === 'degree' || step === 'finals';
+          if (inOnboarding) {
             showScreen('screen-onboarding');
             if (window.initOnboarding) window.initOnboarding(player);
-          } else {
+          } else if (step === 'complete' && player.apartmentId) {
             showScreen('screen-home');
             if (window.initHome) window.initHome(player);
+          } else {
+            showScreen('screen-citymap');
+            if (window.initCityMap) window.initCityMap(player);
           }
         }
       } catch(e) {
