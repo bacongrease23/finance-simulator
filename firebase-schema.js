@@ -881,6 +881,17 @@ export class FirestoreDB {
     );
     return snap.docs.map(d => ({ ...d.data(), aptId: d.id }));
   }
+
+  static async getAdminConfig() {
+    try {
+      const snap = await getDoc(doc(db, "admin", "config"));
+      return snap.exists() ? snap.data() : null;
+    } catch(e) { return null; }
+  }
+
+  static async setAdminConfig(data) {
+    await setDoc(doc(db, "admin", "config"), data, { merge: true });
+  }
 }
 
 // ============================================================

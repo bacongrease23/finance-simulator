@@ -192,6 +192,15 @@ function lgRenderNewPin(el) {
     </div>`;
 }
 
+window.lgNewPinBack = function() {
+  if (lg.pinStep === 'confirm') {
+    lg.pinStep = 'enter'; lg.pin = ''; lg.pinConfirm = '';
+  } else {
+    lg.step = 'new-select';
+  }
+  lgRender();
+};
+
 window.lgNewPinKey = function(key) {
   const isConfirm = lg.pinStep === 'confirm';
   if (key === '⌫') {
@@ -256,14 +265,23 @@ function lgRenderNewName(el) {
             <button class="lg-arrow" onclick="lgLastNext()">›</button>
           </div>
         </div>
-        <button class="lg-confirm-btn" onclick="lg.step='new-outfit';lgRender()">
+        <button class="lg-confirm-btn" onclick="lgGoToOutfit()">
           I'm ${firstName} ${lastName} →
         </button>
-        <button class="lg-back-btn" onclick="lg.pinStep='enter';lg.pin='';lg.pinConfirm='';lg.step='new-pin';lgRender()">← Back</button>
+        <button class="lg-back-btn" onclick="lgNameBack()">← Back</button>
       </div>
     </div>`;
 }
 
+window.lgGoToOutfit = function() {
+  lg.step = 'new-outfit';
+  lgRender();
+};
+window.lgNameBack = function() {
+  lg.pinStep = 'enter'; lg.pin = ''; lg.pinConfirm = '';
+  lg.step = 'new-pin';
+  lgRender();
+};
 window.lgFirstPrev = function() { lg.firstIdx = (lg.firstIdx - 1 + LG_FIRST_NAMES.length) % LG_FIRST_NAMES.length; lgRender(); };
 window.lgFirstNext = function() { lg.firstIdx = (lg.firstIdx + 1) % LG_FIRST_NAMES.length; lgRender(); };
 window.lgLastPrev  = function() { lg.lastIdx  = (lg.lastIdx  - 1 + LG_LAST_NAMES.length)  % LG_LAST_NAMES.length;  lgRender(); };
@@ -291,12 +309,13 @@ function lgRenderNewOutfit(el) {
         <button class="lg-confirm-btn" onclick="lgCreatePlayer()">
           Enter Capital Heights as ${firstName} →
         </button>
-        <button class="lg-back-btn" onclick="lg.step='new-name';lgRender()">← Back</button>
+        <button class="lg-back-btn" onclick="lgOutfitBack()">← Back</button>
         <p id="lg-create-error" class="lg-pin-error" style="display:none"></p>
       </div>
     </div>`;
 }
 
+window.lgOutfitBack = function() { lg.step = 'new-name'; lgRender(); };
 window.lgOutfitPrev = function() { const n = lg.selectedChar.imgs.length; lg.outfitIdx = (lg.outfitIdx - 1 + n) % n; lgRender(); };
 window.lgOutfitNext = function() { const n = lg.selectedChar.imgs.length; lg.outfitIdx = (lg.outfitIdx + 1) % n; lgRender(); };
 
@@ -392,11 +411,12 @@ function lgRenderRetPin(el) {
             </button>`).join('')}
         </div>
         <p id="lg-ret-pin-error" class="lg-pin-error" style="display:none"></p>
-        <button class="lg-back-btn" onclick="lg.step='ret-select';lg.pin='';lgRender()">← Back</button>
+        <button class="lg-back-btn" onclick="lgRetPinBack()">← Back</button>
       </div>
     </div>`;
 }
 
+window.lgRetPinBack = function() { lg.step = 'ret-select'; lg.pin = ''; lgRender(); };
 window.lgRetPinKey = async function(key) {
   if (key === '⌫') { lg.pin = lg.pin.slice(0,-1); lgRender(); return; }
   if (lg.pin.length >= 4) return;
