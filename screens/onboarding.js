@@ -585,7 +585,10 @@ let ob = {
 
 window.initOnboarding = function(player) {
   ob.player = player;
-  ob.step   = player.onboardingStep || 'character';
+  // Character is chosen during login — skip that step
+  // If onboardingStep is 'character' or missing, jump to 'category'
+  const rawStep = player.onboardingStep || 'character';
+  ob.step = rawStep === 'character' ? 'category' : rawStep;
   if (player.characterId) ob.selectedChar = OB_CHARACTERS.find(c=>c.id===player.characterId)||null;
   if (player.majorId) {
     for (const cat of OB_CATEGORIES) {
@@ -600,16 +603,16 @@ window.initOnboarding = function(player) {
 function obRender() {
   const el = document.getElementById('screen-onboarding');
   if (!el) return;
-  if      (ob.step==='character') obRenderCharacter(el);
-  else if (ob.step==='category')  obRenderCategory(el);
+  // 'character' step is handled by login.js — skip it here
+  if      (ob.step==='category')  obRenderCategory(el);
   else if (ob.step==='major')     obRenderMajor(el);
   else if (ob.step==='finals')    obRenderFinals(el);
   else if (ob.step==='results')   obRenderResults(el);
-  else { showScreen('screen-home'); if(window.initHome) window.initHome(ob.player); }
+  else { showScreen('screen-citymap'); if(window.initCityMap) window.initCityMap(ob.player); }
 }
 
 function obStepBar(active) {
-  return ['Character','Degree','Finals','Graduate'].map((s,i)=>{
+  return ['Degree','Finals','Graduate'].map((s,i)=>{
     const n=i+1, cls=n<active?'done':n===active?'active':'';
     return `<div class="ob-step ${cls}">${n} ${s}</div>`;
   }).join('');
