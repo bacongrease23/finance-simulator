@@ -622,6 +622,19 @@ function obLogoutBtn() {
   return `<button class="ob-logout" onclick="handleLogout()">← Log Out</button>`;
 }
 
+// ── Named navigation functions (avoid inline onclick quote issues) ──
+window.obBackToCategory = function() {
+  ob.selectedMajor = null;
+  ob.currentQ = 0; ob.score = 0; ob.wrongAnswers = [];
+  ob.step = 'category';
+  obRender();
+};
+window.obBackFromMajor = function() {
+  ob.selectedMajor = null;
+  ob.step = 'category';
+  obRender();
+};
+
 // ── Step 1: Character ─────────────────────────────────────────
 function obRenderCharacter(el) {
   el.innerHTML=`<div class="ob-wrap">
@@ -679,7 +692,7 @@ function obRenderCategory(el) {
       </div>
     </div>
     <div class="ob-footer">
-      <button class="ob-btn" style="background:#2a2a2a;color:#ccc;" onclick="ob.step='character';obRender()">← Back</button>
+      <button class="ob-btn" style="background:var(--panel2);color:var(--text-muted);" onclick="obBackToCategory()">← Back</button>
     </div>
   </div>`;
 }
@@ -710,7 +723,7 @@ function obRenderMajor(el) {
         </div>`).join('')}
     </div>
     <div class="ob-footer" style="display:flex;gap:12px;justify-content:center;">
-      <button class="ob-btn" style="background:#2a2a2a;color:#ccc;" onclick="ob.step='category';ob.selectedMajor=null;obRender()">← Back</button>
+      <button class="ob-btn" style="background:var(--panel2);color:var(--text-muted);" onclick="obBackFromMajor()">← Back</button>
       <button class="ob-btn" onclick="obConfirmMajor()" ${!ob.selectedMajor?'disabled':''}>
         Enroll in ${ob.selectedMajor?ob.selectedMajor.label:'...'} →
       </button>
@@ -736,7 +749,7 @@ function obRenderFinals(el) {
       <div class="ob-step-bar">${obStepBar(3)}</div>
       <h1 class="ob-title">${ob.selectedMajor.label} — Final Exam</h1>
       <p class="ob-sub">Question ${ob.currentQ+1} of ${ob.questions.length} &nbsp;|&nbsp;
-        <span class="drop-link" onclick="obDropClass()">Drop Class</span></p>
+        <span class="drop-link" onclick="obBackToCategory()">Drop Class</span></p>
       <div class="progress-bar"><div class="progress-fill" style="width:${prog}%"></div></div>
     </div>
     <div class="finals-box">
@@ -747,11 +760,7 @@ function obRenderFinals(el) {
     </div>
   </div>`;
 }
-window.obDropClass = () => {
-  if (!confirm('Drop this class? You will go back to choosing your degree.')) return;
-  ob.selectedMajor=null; ob.currentQ=0; ob.score=0; ob.wrongAnswers=[];
-  ob.step='category'; obRender();
-};
+window.obDropClass = () => { obBackToCategory(); };
 window.obAnswerQ = idx => {
   const q=ob.questions[ob.currentQ];
   if (idx===q.a) ob.score++;
