@@ -49,6 +49,11 @@ let lg = {
 
 // ── Init ──────────────────────────────────────────────────────
 window.initLogin = async function() {
+  // Wait for GameState to be available
+  if (!window.GameState || !window.GameState.FirestoreDB) {
+    setTimeout(() => window.initLogin(), 50);
+    return;
+  }
   // Load claimed characters from Firebase
   try {
     const players = await window.GameState.FirestoreDB.getAllPlayers();
@@ -65,6 +70,9 @@ window.initLogin = async function() {
 function lgRender() {
   const el = document.getElementById('screen-login');
   if (!el) return;
+  // Ensure this screen is active
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
   if      (lg.step === 'landing')       lgRenderLanding(el);
   else if (lg.step === 'select')        lgRenderSelect(el);
   else if (lg.step === 'pin')           lgRenderPin(el);
@@ -339,3 +347,15 @@ window.lgCreatePlayer = async function() {
     console.error(e);
   }
 };
+
+// ── Self-boot — runs as soon as this module loads ────────────
+// GameState and showScreen are set up in index.html before imports resolve,
+// but we need to wait for the DOM to be ready.
+(function boot() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => window.initLogin());
+  } else {
+    // Small timeout ensures GameState is fully wired from index.html
+    setTimeout(() => window.initLogin(), 0);
+  }
+})();

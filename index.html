@@ -26,7 +26,7 @@
         <button onclick="handleAdminLogin()">Enter →</button>
       </div>
       <p id="admin-login-error" class="error-msg" style="display:none"></p>
-      <button class="link-btn" onclick="showScreen('screen-login')">← Back</button>
+      <button class="link-btn" onclick="showScreen('screen-login');if(window.initLogin)window.initLogin();">← Back</button>
     </div>
   </div>
 
@@ -180,9 +180,6 @@
 
     // ── Login — now handled by login.js ──────────
     // initLogin() called on page load below
-
-    // ── Boot login ────────────────────────────────
-    window.initLogin();
 
     // ── Logout ────────────────────────────────────
     window.handleLogout = async function() {
