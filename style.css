@@ -582,3 +582,178 @@ table td { padding: 8px 12px; border-bottom: 1px solid #1e1e1e; }
   color: #aaa;
   margin-left: 10px;
 }
+/* ============================================================
+   CITY MAP
+   ============================================================ */
+
+.cm-wrap {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0d0d0d;
+}
+
+.cm-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: #111;
+  border-bottom: 1px solid #222;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.cm-topbar-left { display: flex; align-items: center; gap: 12px; }
+.cm-city-name { font-size: 1rem; font-weight: 700; color: #f5c842; letter-spacing: 2px; text-transform: uppercase; }
+.cm-district-name { font-size: 0.85rem; color: #888; }
+.cm-topbar-right { display: flex; align-items: center; gap: 16px; }
+.cm-stat { font-size: 0.85rem; color: #ccc; }
+.cm-logout { background: none; border: 1px solid #333; border-radius: 6px; color: #666; cursor: pointer; font-size: 0.75rem; padding: 4px 12px; transition: color 0.15s, border-color 0.15s; }
+.cm-logout:hover { color: #ccc; border-color: #666; }
+
+.cm-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Map */
+.cm-map-container {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+.cm-map-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cm-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.cm-zone {
+  cursor: pointer;
+  transition: fill-opacity 0.2s;
+}
+.cm-zone:hover { fill-opacity: 0.3 !important; }
+.cm-zone.active { fill-opacity: 0.35 !important; }
+
+/* Prompt panel */
+.cm-prompt {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #111;
+  border-left: 1px solid #222;
+  padding: 32px;
+}
+.cm-prompt-icon { font-size: 3rem; }
+.cm-prompt-text { color: #555; font-size: 0.9rem; text-align: center; }
+
+/* Carousel panel */
+.cm-carousel {
+  width: 320px;
+  background: #111;
+  border-left: 1px solid #222;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 16px;
+}
+.cm-carousel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cm-carousel-district { font-size: 0.85rem; font-weight: 700; color: #f5c842; letter-spacing: 1px; text-transform: uppercase; }
+.cm-carousel-close { background: none; border: none; color: #555; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.15s; }
+.cm-carousel-close:hover { color: #ccc; }
+
+.cm-carousel-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.cm-arrow {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 50%;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 1.8rem;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  line-height: 1;
+  padding-bottom: 2px;
+}
+.cm-arrow:hover:not(:disabled) { background: #2a2a2a; border-color: #555; }
+.cm-arrow:disabled { opacity: 0.2; cursor: default; }
+
+.cm-building-display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.cm-building-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.6));
+}
+.cm-building-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  line-height: 1.3;
+}
+.cm-building-desc {
+  font-size: 0.78rem;
+  color: #888;
+  line-height: 1.4;
+}
+.cm-carousel-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.cm-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #333;
+  transition: background 0.15s;
+}
+.cm-dot.active { background: #f5c842; }
+
+.cm-enter-btn {
+  background: #f5c842;
+  border: none;
+  border-radius: 8px;
+  color: #111;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 14px;
+  width: 100%;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.cm-enter-btn:hover { background: #e0b438; }
