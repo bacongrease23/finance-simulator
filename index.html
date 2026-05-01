@@ -13,21 +13,8 @@
        controlled by showScreen(id)
   ══════════════════════════════════════════════ -->
 
-  <!-- 1. LOGIN -->
-  <div id="screen-login" class="screen active">
-    <div class="splash-box">
-      <h1 class="game-title">CAPITAL HEIGHTS</h1>
-      <p class="game-subtitle">Financial Literacy Simulator</p>
-      <hr class="divider">
-      <div class="input-group">
-        <input type="text" id="input-firstname" placeholder="First name" autocomplete="off" onkeydown="if(event.key==='Enter')document.getElementById('input-lastname').focus()"/>
-        <input type="text" id="input-lastname"  placeholder="Last name"  autocomplete="off" onkeydown="if(event.key==='Enter')handleLogin()"/>
-        <button onclick="handleLogin()">Enter the City →</button>
-      </div>
-      <p id="login-error" class="error-msg" style="display:none"></p>
-      <button class="link-btn" onclick="showScreen('screen-admin-login')">Admin Login</button>
-    </div>
-  </div>
+  <!-- 1. LOGIN (injected by login.js) -->
+  <div id="screen-login" class="screen active"></div>
 
   <!-- 2. ADMIN LOGIN -->
   <div id="screen-admin-login" class="screen">
@@ -55,6 +42,12 @@
         <p>Run ONCE to seed apartments, groceries, and 500 jobs into Firebase.</p>
         <button onclick="runSetup()" id="btn-setup">Run First-Time Setup</button>
         <p id="setup-status" class="feedback"></p>
+      </div>
+      <div class="admin-card" style="border-color:#e05252;">
+        <h2 style="color:#e05252;">Reset Season</h2>
+        <p>Wipes ALL student data and releases all characters. Use between class periods.</p>
+        <button onclick="adminResetSeason()" style="background:#e05252;color:white;">Reset Season</button>
+        <p id="reset-status" class="feedback"></p>
       </div>
       <div class="admin-card">
         <h2>Trigger Event</h2>
@@ -154,6 +147,7 @@
     import { seedDatabase } from './seed-data.js';
     import { seedJobs }     from './job-generator.js';
 
+    import './screens/login.js';
     import './screens/onboarding.js';
     import './screens/citymap.js';
     import './screens/home.js';
@@ -184,48 +178,11 @@
       if (el) el.classList.add('active');
     };
 
-    // ── Login ─────────────────────────────────────
-    window.handleLogin = async function() {
-      const first = document.getElementById('input-firstname').value.trim();
-      const last  = document.getElementById('input-lastname').value.trim();
-      const err   = document.getElementById('login-error');
-      if (!first || !last) {
-        err.textContent = "Please enter your first and last name.";
-        err.style.display = "block";
-        return;
-      }
-      err.style.display = "none";
-      const uid = (first[0] + last).toLowerCase().replace(/[^a-z]/g, '');
-      try {
-        let player = await FirestoreDB.getPlayer(uid);
-        if (!player) {
-          player = await FirestoreDB.createPlayer(uid, first, last);
-          window.GameState.player = player;
-          showScreen('screen-onboarding');
-          if (window.initOnboarding) window.initOnboarding(player);
-        } else {
-          const timeResult = await FirestoreDB.advanceTime(uid);
-          player = await FirestoreDB.getPlayer(uid);
-          window.GameState.player = player;
-          const step = player.onboardingStep;
-          const inOnboarding = !step || step === 'character' || step === 'degree' || step === 'finals';
-          if (inOnboarding) {
-            showScreen('screen-onboarding');
-            if (window.initOnboarding) window.initOnboarding(player);
-          } else if (step === 'complete' && player.apartmentId) {
-            showScreen('screen-home');
-            if (window.initHome) window.initHome(player);
-          } else {
-            showScreen('screen-citymap');
-            if (window.initCityMap) window.initCityMap(player);
-          }
-        }
-      } catch(e) {
-        err.textContent = "Connection error: " + e.message;
-        err.style.display = "block";
-        console.error(e);
-      }
-    };
+    // ── Login — now handled by login.js ──────────
+    // initLogin() called on page load below
+
+    // ── Boot login ────────────────────────────────
+    window.initLogin();
 
     // ── Logout ────────────────────────────────────
     window.handleLogout = async function() {
@@ -235,6 +192,7 @@
       currentPlayer = null;
       window.GameState.player = null;
       showScreen('screen-login');
+      if (window.initLogin) window.initLogin();
     };
 
     // ── Admin login ───────────────────────────────
@@ -291,6 +249,39 @@
         await FirestoreDB.adminTriggerEvent(uid, type, payloads[type] || {});
         status.textContent = "Event queued. Delivers on next player login.";
       } catch(e) { status.textContent = "Error: " + e.message; }
+    };
+
+    // ── Season reset ──────────────────────────────
+    window.adminResetSeason = async function() {
+      if (!confirm('RESET SEASON: This will delete ALL student data and release all characters. Are you sure?')) return;
+      if (!confirm('FINAL WARNING: All progress will be lost. This cannot be undone.')) return;
+      const statusEl = document.getElementById('reset-status');
+      statusEl.textContent = 'Resetting...';
+      try {
+        const players = await FirestoreDB.getAllPlayers();
+        const { collection, getDocs, deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        const { db } = await import('./firebase-schema.js');
+        for (const p of players) {
+          for (const sub of ['emails','todos','transactions']) {
+            const snap = await getDocs(collection(db, 'players', p.uid, sub));
+            for (const d of snap.docs) await deleteDoc(d.ref);
+          }
+          await deleteDoc(doc(db, 'players', p.uid));
+        }
+        statusEl.textContent = 'Season reset. All characters released.';
+        loadAdminData();
+      } catch(e) {
+        statusEl.textContent = 'Error: ' + e.message;
+      }
+    };
+
+    // ── Release character (keeps player, clears PIN + characterId) ──
+    window.releaseCharacter = async function(uid) {
+      if (!confirm('Release this character? The student will need to re-select and re-enter their PIN.')) return;
+      try {
+        await FirestoreDB.updatePlayer(uid, { characterId: null, pin: null });
+        loadAdminData();
+      } catch(e) { alert('Error: ' + e.message); }
     };
 
     window.resolveRequest = async function(requestId, approved) {
