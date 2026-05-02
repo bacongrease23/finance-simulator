@@ -662,32 +662,23 @@ tr:hover td { background: var(--parch); }
 .cm-district-layer.lifted {
   transform: translateY(-18px) scale(1.03);
   z-index: 10;
-  /* Large soft shadow for depth + feathered glow */
+  /* Multi-layer drop shadow: deep shadow below + soft ambient glow around edges
+     The large blurred drop-shadow creates the "light from below" effect
+     without tracing any polygon edges */
   filter:
-    drop-shadow(0 28px 40px rgba(0,0,0,0.65))
-    drop-shadow(0 10px 20px rgba(0,0,0,0.45))
-    drop-shadow(0 0 2px rgba(0,0,0,0.3));
+    drop-shadow(0 32px 48px rgba(0,0,0,0.7))
+    drop-shadow(0 12px 24px rgba(0,0,0,0.5))
+    drop-shadow(0 0 40px rgba(255,220,120,0.12))
+    drop-shadow(0 0 80px rgba(255,200,80,0.06));
 }
 .cm-district-layer.lifted .cm-layer-inner {
-  filter: brightness(1.12) saturate(1.25);
+  filter: brightness(1.15) saturate(1.3) contrast(1.02);
 }
 
 /* Other districts dim */
 .cm-district-layer.dimmed {
-  opacity: 0.35;
-  filter: brightness(0.45) saturate(0.25);
-}
-
-/* Glow border polygon — drawn in the event SVG over lifted district */
-.cm-glow-polygon {
-  fill: none;
-  stroke-width: 0.8;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  /* filter applied per-element in JS */
-}
-.cm-glow-polygon.visible {
-  opacity: 1;
+  opacity: 0.32;
+  filter: brightness(0.4) saturate(0.2);
 }
 
 /* Name bar at bottom */
