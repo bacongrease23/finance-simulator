@@ -131,6 +131,35 @@
         <h2>All Students</h2>
         <div id="scoreboard"></div>
       </div>
+      <div class="admin-card">
+        <h2>🗺️ District Boundary Calibration</h2>
+        <p>Drag the corner points to align district zones with the map. Copy the output and paste into citymap.js.</p>
+        <button onclick="adminOpenCalibrator()">Open Calibrator</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISTRICT CALIBRATOR OVERLAY -->
+  <div id="district-calibrator" style="display:none;position:fixed;inset:0;z-index:9500;background:#1a1208;flex-direction:column;">
+    <div style="position:relative;flex:1;overflow:hidden;" id="cal-map-wrap">
+      <img src="assets/map/map_full_capital_heights.png" id="cal-map-img"
+        style="width:100%;height:100%;object-fit:cover;display:block;user-select:none;"/>
+      <svg id="cal-svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"></svg>
+    </div>
+    <div id="cal-toolbar" style="
+      background:rgba(26,18,8,0.95);
+      border-top:1px solid #3a3020;
+      padding:16px 24px;
+      display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+      font-family:Inter,sans-serif;font-size:0.85rem;color:#c8b890;">
+      <span id="cal-active-label" style="font-weight:700;color:#C8920A;min-width:180px;">Click a district polygon</span>
+      <select id="cal-district-select" style="background:#2a2218;border:1px solid #4a3a20;border-radius:6px;color:#e8d8b0;padding:8px 12px;font-size:0.85rem;" onchange="calSelectDistrict(this.value)">
+        <option value="">— Select District —</option>
+      </select>
+      <button onclick="calCopyOutput()" style="background:#C8920A;border:none;border-radius:8px;color:white;font-weight:700;padding:10px 20px;cursor:pointer;">📋 Copy All Coordinates</button>
+      <button onclick="calAddPoint()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#e8d8b0;padding:10px 16px;cursor:pointer;">+ Add Point</button>
+      <button onclick="calRemovePoint()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#e05252;padding:10px 16px;cursor:pointer;">− Remove Last Point</button>
+      <button onclick="adminCloseCalibrator()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#888;padding:10px 16px;cursor:pointer;margin-left:auto;">✕ Close</button>
     </div>
   </div>
 
@@ -256,6 +285,217 @@
         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       } catch(e) {}
     };
+
+
+    // ── District Boundary Calibrator ─────────────────
+    const CAL_COLORS = {
+      commons:'#4A8AC8', oldtown:'#A84AC8', crestwood:'#C8784A',
+      financial:'#C8A84A', capitol:'#4AC87A', eastbrook:'#C84A4A', riverside:'#4AC8C8'
+    };
+
+    // Current polygon points per district (% of image, 0-100)
+    // Loaded from citymap.js CM_DISTRICTS on open
+    let calPoints = {}; // { districtId: [{x,y}, ...] }
+    let calActive = null;
+    let calDragging = null;
+    let calDragIdx = null;
+
+    window.adminOpenCalibrator = function() {
+      const cal = document.getElementById('district-calibrator');
+      cal.style.display = 'flex';
+      cal.style.flexDirection = 'column';
+
+      // Import district data from the live CM_DISTRICTS variable
+      // (citymap.js must be loaded)
+      if (typeof CM_DISTRICTS === 'undefined') {
+        alert('City map not loaded yet. Navigate to the city map first, then return to admin.');
+        cal.style.display = 'none';
+        return;
+      }
+
+      // Parse existing polygon strings into point arrays
+      calPoints = {};
+      CM_DISTRICTS.forEach(d => {
+        calPoints[d.id] = d.poly.split(' ').map(pt => {
+          const [x,y] = pt.split(',').map(Number);
+          return {x, y};
+        });
+      });
+
+      // Populate district select
+      const sel = document.getElementById('cal-district-select');
+      sel.innerHTML = '<option value="">— Select District —</option>';
+      CM_DISTRICTS.forEach(d => {
+        sel.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+      });
+
+      calActive = null;
+      calRenderSVG();
+    };
+
+    window.adminCloseCalibrator = function() {
+      document.getElementById('district-calibrator').style.display = 'none';
+    };
+
+    window.calSelectDistrict = function(id) {
+      calActive = id || null;
+      document.getElementById('cal-active-label').textContent =
+        id ? CM_DISTRICTS.find(d=>d.id===id).name + ' — drag points' : 'Click a district polygon';
+      calRenderSVG();
+    };
+
+    function calRenderSVG() {
+      const svg = document.getElementById('cal-svg');
+      const wrap = document.getElementById('cal-map-wrap');
+      const W = wrap.offsetWidth;
+      const H = wrap.offsetHeight;
+      if (!W || !H) return;
+
+      let html = '';
+
+      // Draw all districts
+      CM_DISTRICTS.forEach(d => {
+        const pts = calPoints[d.id];
+        if (!pts) return;
+        const isActive = d.id === calActive;
+        const pixPts = pts.map(p => `${(p.x/100)*W},${(p.y/100)*H}`).join(' ');
+        const color = CAL_COLORS[d.id] || '#fff';
+
+        // Polygon fill (clickable to select)
+        html += `<polygon
+          points="${pixPts}"
+          fill="${color}" fill-opacity="${isActive ? 0.25 : 0.08}"
+          stroke="${color}" stroke-width="${isActive ? 2.5 : 1}"
+          stroke-opacity="${isActive ? 1 : 0.4}"
+          style="cursor:pointer;"
+          onclick="calSelectDistrict('${d.id}')"/>`;
+
+        // District label
+        const cx = pts.reduce((s,p)=>s+p.x,0)/pts.length;
+        const cy = pts.reduce((s,p)=>s+p.y,0)/pts.length;
+        html += `<text x="${(cx/100)*W}" y="${(cy/100)*H}"
+          text-anchor="middle" dominant-baseline="middle"
+          fill="${color}" font-size="13" font-weight="700"
+          font-family="Cinzel,serif" pointer-events="none"
+          style="text-shadow:0 1px 4px rgba(0,0,0,0.9);">${d.name}</text>`;
+
+        // Drag handles — only for active district
+        if (isActive) {
+          pts.forEach((p, i) => {
+            const px = (p.x/100)*W;
+            const py = (p.y/100)*H;
+            html += `<circle
+              cx="${px}" cy="${py}" r="10"
+              fill="${color}" fill-opacity="0.9"
+              stroke="white" stroke-width="2"
+              style="cursor:grab;"
+              onmousedown="calStartDrag(event,${i})"
+              ontouchstart="calStartDragTouch(event,${i})"/>`;
+            html += `<text x="${px}" y="${py+1}"
+              text-anchor="middle" dominant-baseline="middle"
+              fill="white" font-size="10" font-weight="700"
+              pointer-events="none">${i}</text>`;
+          });
+        }
+      });
+
+      svg.innerHTML = html;
+    }
+
+    window.calStartDrag = function(e, idx) {
+      e.preventDefault();
+      calDragging = true;
+      calDragIdx = idx;
+      const svg = document.getElementById('cal-svg');
+      svg.style.cursor = 'grabbing';
+    };
+
+    window.calStartDragTouch = function(e, idx) {
+      calDragging = true;
+      calDragIdx = idx;
+    };
+
+    // Mouse move on the map wrap
+    document.addEventListener('mousemove', function(e) {
+      if (!calDragging || calActive === null || calDragIdx === null) return;
+      const wrap = document.getElementById('cal-map-wrap');
+      if (!wrap) return;
+      const rect = wrap.getBoundingClientRect();
+      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((e.clientY - rect.top)  / rect.height) * 100));
+      calPoints[calActive][calDragIdx] = { x: Math.round(x*10)/10, y: Math.round(y*10)/10 };
+      calRenderSVG();
+    });
+
+    document.addEventListener('mouseup', function() {
+      if (calDragging) {
+        calDragging = false;
+        calDragIdx = null;
+        const svg = document.getElementById('cal-svg');
+        if (svg) svg.style.cursor = '';
+      }
+    });
+
+    document.addEventListener('touchmove', function(e) {
+      if (!calDragging || calActive === null || calDragIdx === null) return;
+      const touch = e.touches[0];
+      const wrap = document.getElementById('cal-map-wrap');
+      if (!wrap) return;
+      const rect = wrap.getBoundingClientRect();
+      const x = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((touch.clientY - rect.top)  / rect.height) * 100));
+      calPoints[calActive][calDragIdx] = { x: Math.round(x*10)/10, y: Math.round(y*10)/10 };
+      calRenderSVG();
+    }, { passive: true });
+
+    document.addEventListener('touchend', function() {
+      calDragging = false; calDragIdx = null;
+    });
+
+    window.calAddPoint = function() {
+      if (!calActive) return;
+      const pts = calPoints[calActive];
+      // Add a point at the centroid
+      const cx = pts.reduce((s,p)=>s+p.x,0)/pts.length;
+      const cy = pts.reduce((s,p)=>s+p.y,0)/pts.length;
+      pts.push({ x: Math.round(cx*10)/10, y: Math.round(cy*10)/10 });
+      calRenderSVG();
+    };
+
+    window.calRemovePoint = function() {
+      if (!calActive) return;
+      const pts = calPoints[calActive];
+      if (pts.length > 3) { pts.pop(); calRenderSVG(); }
+    };
+
+    window.calCopyOutput = function() {
+      // Generate the poly strings for all districts
+      const lines = CM_DISTRICTS.map(d => {
+        const pts = calPoints[d.id];
+        const polyStr = pts.map(p => p.x + ',' + p.y).join(' ');
+        return `  // ${d.name}\n  poly:'${polyStr}',`;
+      });
+      const output = lines.join('\n\n');
+      navigator.clipboard.writeText(output).then(() => {
+        alert('Coordinates copied to clipboard!\n\nPaste into citymap.js, replacing each poly: value.');
+      }).catch(() => {
+        // Fallback: show in a text area
+        const ta = document.createElement('textarea');
+        ta.value = output;
+        ta.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;z-index:99999;background:#1a1208;color:#e8d8b0;border:2px solid #C8920A;border-radius:8px;padding:16px;font-family:monospace;font-size:12px;';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        setTimeout(() => ta.remove(), 3000);
+        alert('Copied! (fallback method)');
+      });
+    };
+
+    // Re-render calibrator on window resize
+    window.addEventListener('resize', function() {
+      const cal = document.getElementById('district-calibrator');
+      if (cal && cal.style.display !== 'none') calRenderSVG();
+    });
 
     // ── Logout ────────────────────────────────────
     window.handleLogout = async function() {
