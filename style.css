@@ -601,125 +601,112 @@ tr:hover td { background: var(--parch); }
 .review-correct { font-size: 0.9rem; color: var(--forest); }
 
 /* ============================================================
-   CITY MAP — LAYERED PIECES WITH 3D LIFT
+   CITY MAP — CLIP-PATH LIFT EFFECT
    ============================================================ */
 
-/* Root container */
 .cm-map-root {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  perspective: 1200px;
+  position: fixed; inset: 0;
+  width: 100vw; height: 100vh;
   background: #1a1208;
+  overflow: hidden;
 }
 
-/* Base map image */
+/* Base map — always underneath */
 .cm-base-map {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
   z-index: 1;
+  filter: brightness(0.7) saturate(0.5);
 }
 
-/* Each district piece — full canvas, transparent outside its region */
-.cm-piece-wrap {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+/* Each district layer — full canvas, clipped to polygon shape */
+.cm-district-layer {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   z-index: 2;
   cursor: pointer;
-  transform-origin: center bottom;
-  transform-style: preserve-3d;
+  /* 3D lift setup */
+  transform-origin: center 60%;
   transition:
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1),
     filter 0.3s ease,
-    opacity 0.3s ease;
+    opacity 0.3s ease,
+    z-index 0s;
   will-change: transform, filter;
 }
 
-/* Lift effect on hover */
-.cm-piece-wrap.lifted {
-  transform: translateY(-14px) scale(1.025) rotateX(2deg);
-  filter:
-    brightness(1.12)
-    drop-shadow(0 20px 30px rgba(0,0,0,0.55))
-    drop-shadow(0 8px 12px rgba(0,0,0,0.4));
-  z-index: 10;
-}
-
-/* Dim other districts on hover */
-.cm-piece-wrap.dimmed {
-  opacity: 0.55;
-  filter: brightness(0.7) saturate(0.6);
-}
-
-.cm-piece-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+/* The full map image, clipped to this district's shape */
+.cm-layer-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   display: block;
   pointer-events: none;
-  /* Black in PNG becomes transparent with 'screen' blend mode */
-  /* This lets the base map show through the black areas */
-  mix-blend-mode: screen;
+  transition: filter 0.3s ease;
 }
 
-/* District name bar — bottom of screen */
+/* Invisible SVG hit zone on top */
+.cm-hit-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+.cm-hit-svg polygon { pointer-events: all; }
+
+/* Hover — district lifts toward viewer */
+.cm-district-layer.lifted {
+  transform: translateY(-18px) scale(1.03);
+  z-index: 10;
+  filter: drop-shadow(0 24px 36px rgba(0,0,0,0.6))
+          drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+}
+.cm-district-layer.lifted .cm-layer-img {
+  filter: brightness(1.15) saturate(1.3);
+}
+
+/* All other districts dim */
+.cm-district-layer.dimmed {
+  opacity: 0.4;
+  filter: brightness(0.5) saturate(0.3);
+}
+
+/* Name bar at bottom */
 .cm-name-bar {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
+  position: absolute; bottom: 0; left: 0; right: 0;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 24px;
-  background: linear-gradient(to top, rgba(26,18,8,0.9) 0%, rgba(26,18,8,0) 100%);
-  opacity: 0;
-  transform: translateY(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px 24px 28px;
+  background: linear-gradient(to top, rgba(26,18,8,0.95) 0%, rgba(26,18,8,0) 100%);
+  opacity: 0; transform: translateY(8px);
   transition: opacity 0.25s ease, transform 0.25s ease;
   pointer-events: none;
 }
-.cm-name-bar.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.cm-name-bar.visible { opacity: 1; transform: translateY(0); }
 .cm-name-bar span {
   font-family: 'Cinzel', serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+  font-size: 2rem; font-weight: 700;
+  letter-spacing: 5px; text-transform: uppercase;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.9);
 }
 
-/* ── District view ── */
+/* ── District screen ── */
 .cm-district-wrap {
-  position: fixed; inset: 0;
-  width: 100vw; height: 100vh;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  position: fixed; inset: 0; width: 100vw; height: 100vh;
+  background-size: cover; background-position: center;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
 }
 .cm-district-overlay {
   position: absolute; inset: 0;
-  background: rgba(240,228,200,0.2);
-  pointer-events: none;
+  background: rgba(240,228,200,0.18); pointer-events: none;
 }
 .cm-district-ui {
   position: relative; z-index: 2;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 20px; width: 100%; height: 100%;
-  padding: 40px;
+  gap: 20px; width: 100%; height: 100%; padding: 40px;
 }
 .cm-district-carousel {
   display: flex; align-items: center; gap: 32px;
@@ -727,28 +714,19 @@ tr:hover td { background: var(--parch); }
   border: 2px solid rgba(180,150,100,0.4);
   border-radius: 24px; padding: 48px 52px;
   width: 100%; max-width: 780px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 12px 60px rgba(42,31,14,0.35);
 }
 .cm-big-arrow {
-  background: var(--parch-light);
-  border: 2px solid var(--parch-darker);
-  border-radius: 50%;
-  color: var(--ink-mid);
-  font-size: 3rem;
-  width: 72px; height: 72px;
-  flex-shrink: 0;
+  background: var(--parch-light); border: 2px solid var(--parch-darker);
+  border-radius: 50%; color: var(--ink-mid);
+  font-size: 3rem; width: 72px; height: 72px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  padding-bottom: 4px;
-  box-shadow: var(--shadow-md);
-  transition: all 0.15s;
+  padding-bottom: 4px; box-shadow: var(--shadow-md); transition: all 0.15s;
 }
 .cm-big-arrow:hover:not(:disabled) {
-  background: var(--parch-dark);
-  border-color: var(--gold);
-  color: var(--gold-dark);
-  transform: scale(1.08);
+  background: var(--parch-dark); border-color: var(--gold);
+  color: var(--gold-dark); transform: scale(1.08);
 }
 .cm-big-arrow:disabled { opacity: 0.2; cursor: default; }
 .cm-district-building {
@@ -758,59 +736,44 @@ tr:hover td { background: var(--parch); }
 .cm-district-building-img {
   height: 280px; object-fit: contain;
   filter: drop-shadow(0 8px 32px rgba(42,31,14,0.25));
-  transition: opacity 0.2s;
 }
 .cm-district-building-name {
-  font-family: 'Cinzel', serif;
-  font-size: 1.5rem; font-weight: 700;
-  color: var(--ink); line-height: 1.3;
+  font-family: 'Cinzel', serif; font-size: 1.5rem;
+  font-weight: 700; color: var(--ink); line-height: 1.3;
 }
-.cm-district-building-desc {
-  font-size: 1rem; color: var(--ink-mid); line-height: 1.5;
-}
+.cm-district-building-desc { font-size: 1rem; color: var(--ink-mid); line-height: 1.5; }
 .cm-district-dots { display: flex; gap: 10px; justify-content: center; }
 .cm-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--parch-darker); transition: background 0.15s; }
 .cm-dot.active { background: var(--gold); }
 .cm-district-enter-btn {
   background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
-  border: none; border-radius: 12px;
-  color: white; font-size: 1.1rem; font-weight: 800;
+  border: none; border-radius: 12px; color: white;
+  font-size: 1.1rem; font-weight: 800;
   padding: 18px 60px; margin-top: 8px;
   letter-spacing: 3px; text-transform: uppercase;
   box-shadow: 0 4px 20px rgba(200,146,10,0.35);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-  transition: all 0.15s;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: all 0.15s;
 }
 .cm-district-enter-btn:hover {
   background: linear-gradient(135deg, #F0BC30 0%, var(--gold-light) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 28px rgba(200,146,10,0.45);
+  transform: translateY(-2px); box-shadow: 0 6px 28px rgba(200,146,10,0.45);
 }
 .cm-back-map {
-  background: rgba(245,237,216,0.8);
-  border: 1.5px solid rgba(180,150,100,0.4);
-  border-radius: 30px;
-  color: var(--ink-mid); font-size: 0.95rem; font-weight: 600;
-  padding: 10px 28px;
-  backdrop-filter: blur(8px);
-  box-shadow: var(--shadow-sm);
-  transition: all 0.15s;
+  background: rgba(245,237,216,0.8); border: 1.5px solid rgba(180,150,100,0.4);
+  border-radius: 30px; color: var(--ink-mid); font-size: 0.95rem;
+  font-weight: 600; padding: 10px 28px; backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm); transition: all 0.15s;
 }
 .cm-back-map:hover { background: rgba(245,237,216,0.96); color: var(--ink); }
-
-/* Missing building placeholder */
 .cm-building-placeholder {
-  height: 280px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 12px; color: var(--ink-faint);
-  font-size: 4rem; background: var(--parch-dark);
-  border-radius: 12px; width: 100%;
+  height: 280px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+  color: var(--ink-faint); font-size: 4rem;
+  background: var(--parch-dark); border-radius: 12px; width: 100%;
 }
 .cm-building-placeholder span {
-  font-size: 1rem; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: var(--ink-faint);
+  font-size: 1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ink-faint);
 }
 
 /* ============================================================

@@ -32,7 +32,7 @@
         setTimeout(function() { gate.remove(); }, 420);
       }
       gate.addEventListener('click', launch);
-      gate.addEventListener('keydown', launch);
+      gate.addEventListener('keydown', function(e) { if (e.key !== 'Escape') launch(); });
     });
 
     // Show/hide exit button
