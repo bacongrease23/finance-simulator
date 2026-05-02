@@ -84,22 +84,34 @@ function lgRender() {
 
 // ── LANDING ───────────────────────────────────────────────────
 function lgRenderLanding(el) {
+  // Show splash image for 4 seconds, then fade to main landing
   el.innerHTML = `
-    <div class="lg-landing">
-      <div class="lg-landing-inner">
-        <h1 class="lg-title">CAPITAL<br>HEIGHTS</h1>
-        <p class="lg-subtitle">Financial Literacy Simulator</p>
-        <div class="lg-landing-btns">
-          <button class="lg-primary-btn" onclick="lgStartNew()">
-            🏙️ Begin Your Journey
-          </button>
-          <button class="lg-secondary-btn" onclick="lgStartReturning()">
-            🔑 Return to Your Journey
-          </button>
-        </div>
-        <button class="lg-admin-link" onclick="showScreen('screen-admin-login')">Admin</button>
-      </div>
+    <div class="lg-splash" id="lg-splash">
+      <img src="assets/capital_heights_landing_page.png" class="lg-splash-img"/>
     </div>`;
+
+  setTimeout(() => {
+    const splash = document.getElementById('lg-splash');
+    if (splash) splash.classList.add('fade-out');
+    setTimeout(() => {
+      el.innerHTML = `
+        <div class="lg-landing">
+          <div class="lg-landing-inner">
+            <h1 class="lg-title">CAPITAL<br>HEIGHTS</h1>
+            <p class="lg-subtitle">Financial Literacy Simulator</p>
+            <div class="lg-landing-btns">
+              <button class="lg-primary-btn" onclick="lgStartNew()">
+                🏙️ Begin Your Journey
+              </button>
+              <button class="lg-secondary-btn" onclick="lgStartReturning()">
+                🔑 Return to Your Journey
+              </button>
+            </div>
+            <button class="lg-admin-link" onclick="showScreen('screen-admin-login')">Admin</button>
+          </div>
+        </div>`;
+    }, 600);
+  }, 4000);
 }
 
 window.lgStartNew = async function() {
