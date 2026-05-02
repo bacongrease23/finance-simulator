@@ -131,12 +131,12 @@ function lgRenderLanding(el) {
     });
   });
 
-  // After 5s total (1s fade in + 4s hold), fade out then show menu
+  // 1s fade in + 3s hold = 4s, then 0.5s fade out to menu
   setTimeout(() => {
-    splash.style.transition = 'opacity 0.7s ease';
+    splash.style.transition = 'opacity 0.5s ease';
     splash.style.opacity = '0';
-    setTimeout(() => lgRenderMenu(el), 700);
-  }, 5000);
+    setTimeout(() => lgRenderMenu(el), 520);
+  }, 4000);
 }
 
 window.lgStartNew = async function() {

@@ -5,34 +5,42 @@
     // Fullscreen gate — browser requires a user gesture. We show a click-to-start
     // overlay that immediately triggers fullscreen when clicked.
     document.addEventListener('DOMContentLoaded', function() {
-      // If already fullscreen (e.g. F11 pressed), skip the gate
       if (document.fullscreenElement || document.webkitFullscreenElement) return;
 
+      // Build gate
       var gate = document.createElement('div');
       gate.id = 'fs-gate';
-      gate.innerHTML = '<div class="fs-gate-inner"><div class="fs-gate-logo">CAPITAL HEIGHTS</div><div class="fs-gate-prompt">Click anywhere to begin</div></div>';
-      gate.style.cssText = [
-        'position:fixed','inset:0','z-index:99999',
-        'background:#1a1208',
-        'display:flex','align-items:center','justify-content:center',
-        'cursor:pointer','font-family:serif'
-      ].join(';');
+      gate.innerHTML = '<div class="fs-gate-inner"><div class="fs-gate-logo">CAPITAL<br>HEIGHTS</div><div class="fs-gate-tagline">Financial Literacy Simulator</div><div class="fs-gate-prompt">Click anywhere to begin</div></div>';
+      gate.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#1a1208;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:1;transition:opacity 0.6s ease;';
       document.body.appendChild(gate);
 
+      var launched = false;
       function launch() {
+        if (launched) return;
+        launched = true;
+
+        // Go fullscreen
         var el = document.documentElement;
-        var p = el.requestFullscreen
-          ? el.requestFullscreen()
-          : el.webkitRequestFullscreen
-          ? (el.webkitRequestFullscreen(), Promise.resolve())
+        var p = el.requestFullscreen ? el.requestFullscreen()
+          : el.webkitRequestFullscreen ? (el.webkitRequestFullscreen(), Promise.resolve())
           : Promise.resolve();
         p.catch(function(){});
-        gate.style.transition = 'opacity 0.4s';
-        gate.style.opacity = '0';
-        setTimeout(function() { gate.remove(); }, 420);
+
+        // Fade gate to black (it's already dark, just ensure it)
+        gate.style.background = '#1a1208';
+        gate.style.transition = 'opacity 0.5s ease';
+
+        // Short pause, then fade out gate to reveal splash
+        setTimeout(function() {
+          gate.style.opacity = '0';
+          setTimeout(function() { gate.remove(); }, 520);
+        }, 200);
       }
+
       gate.addEventListener('click', launch);
-      gate.addEventListener('keydown', function(e) { if (e.key !== 'Escape') launch(); });
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') launch();
+      }, { once: true });
     });
 
     // Show/hide exit button
@@ -108,7 +116,7 @@
       </div>
       <div class="admin-card">
         <h2>First-Time Setup</h2>
-        <p>Run ONCE to seed apartments, groceries, and 500 jobs into Firebase.</p>
+        <p>Run this <strong>once</strong> at the very beginning before any students play. Seeds apartments, groceries, and 500 jobs into the database. If you have already run this, do not run it again.</p>
         <button onclick="runSetup()" id="btn-setup">Run First-Time Setup</button>
         <p id="setup-status" class="feedback"></p>
       </div>
@@ -520,6 +528,50 @@
       if (cal && cal.style.display !== 'none') calRenderSVG();
     });
 
+    // ── Start Menu ────────────────────────────────
+    let startMenuOpen = false;
+
+    function openStartMenu() {
+      startMenuOpen = true;
+      document.getElementById('start-menu').classList.add('open');
+    }
+    function closeStartMenu() {
+      startMenuOpen = false;
+      document.getElementById('start-menu').classList.remove('open');
+    }
+    window.closeStartMenu = closeStartMenu;
+
+    window.startMenuGoMain = function() {
+      closeStartMenu();
+      if (window.GameState && window.GameState.player) {
+        try { FirestoreDB.advanceTime(window.GameState.player.uid); } catch(e) {}
+      }
+      window.GameState.player = null;
+      showScreen('screen-login');
+      if (window.initLogin) window.initLogin();
+    };
+    window.startMenuSettings = function() {
+      // Settings placeholder
+      alert('Settings coming soon.');
+    };
+    window.startMenuAdmin = function() {
+      closeStartMenu();
+      adminPinClear();
+      showScreen('screen-admin-login');
+    };
+
+    // Tilde (~) key toggles start menu
+    document.addEventListener('keydown', function(e) {
+      if (e.key === '~' || e.key === '`') {
+        // Don't open on login or admin screens
+        const active = document.querySelector('.screen.active');
+        if (!active) return;
+        const id = active.id;
+        if (id === 'screen-login' || id === 'screen-admin-login' || id === 'screen-admin') return;
+        startMenuOpen ? closeStartMenu() : openStartMenu();
+      }
+    });
+
     // ── Logout ────────────────────────────────────
     window.handleLogout = async function() {
       if (currentPlayer) {
@@ -542,6 +594,14 @@
     // ── Admin PIN system ──────────────────────────
     let adminPin = '';
     const ADMIN_PIN_LENGTH = 6;
+
+    // Keyboard support for admin PIN screen
+    document.addEventListener('keydown', function(e) {
+      const adminScreen = document.getElementById('screen-admin-login');
+      if (!adminScreen || !adminScreen.classList.contains('active')) return;
+      if (e.key >= '0' && e.key <= '9') { adminPinKey(e.key); }
+      else if (e.key === 'Backspace' || e.key === 'Delete') { adminPinKey('⌫'); }
+    });
 
     window.adminPinKey = async function(key) {
       const err = document.getElementById('admin-login-error');
@@ -844,6 +904,17 @@
         <button class="ch-modal-cancel" onclick="resetCancel()">CANCEL</button>
         <button class="ch-modal-confirm" onclick="resetConfirm2()">CONFIRM RESET</button>
       </div>
+    </div>
+  </div>
+
+  <!-- START MENU -->
+  <div id="start-menu">
+    <div class="start-menu-box">
+      <div class="start-menu-title">⏸ Paused</div>
+      <button class="start-menu-btn primary" onclick="closeStartMenu()">▶ Return to Game</button>
+      <button class="start-menu-btn" onclick="startMenuGoMain()">🏙️ Return to Main Menu</button>
+      <button class="start-menu-btn" onclick="startMenuSettings()">⚙️ Settings</button>
+      <button class="start-menu-btn danger" onclick="startMenuAdmin()">🔐 Admin Portal</button>
     </div>
   </div>
 
