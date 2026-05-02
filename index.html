@@ -67,15 +67,35 @@
 
   <!-- 2. ADMIN LOGIN -->
   <div id="screen-admin-login" class="screen">
-    <div class="splash-box">
-      <h1 class="game-title">Admin Panel</h1>
-      <hr class="divider">
-      <div class="input-group">
-        <input type="password" id="input-admin-pass" placeholder="Password" autocomplete="new-password"/>
-        <button onclick="handleAdminLogin()">Enter →</button>
+    <div class="admin-pin-wrap">
+      <div class="admin-pin-box">
+        <h1 class="admin-pin-title">Admin Access</h1>
+        <p class="admin-pin-sub">Enter your 6-digit PIN</p>
+        <div class="admin-pin-dots" id="admin-pin-dots">
+          <div class="admin-pin-dot"></div>
+          <div class="admin-pin-dot"></div>
+          <div class="admin-pin-dot"></div>
+          <div class="admin-pin-dot"></div>
+          <div class="admin-pin-dot"></div>
+          <div class="admin-pin-dot"></div>
+        </div>
+        <div class="lg-numpad">
+          <button class="lg-numpad-btn" onclick="adminPinKey('1')">1</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('2')">2</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('3')">3</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('4')">4</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('5')">5</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('6')">6</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('7')">7</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('8')">8</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('9')">9</button>
+          <button class="lg-numpad-btn invisible"></button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('0')">0</button>
+          <button class="lg-numpad-btn" onclick="adminPinKey('⌫')">⌫</button>
+        </div>
+        <p id="admin-login-error" class="error-msg" style="display:none;text-align:center;margin-top:8px;"></p>
+        <button class="link-btn" style="margin-top:16px;" onclick="adminPinClear();showScreen('screen-login');if(window.initLogin)window.initLogin();">← Back</button>
       </div>
-      <p id="admin-login-error" class="error-msg" style="display:none"></p>
-      <button class="link-btn" onclick="showScreen('screen-login');if(window.initLogin)window.initLogin();">← Back</button>
     </div>
   </div>
 

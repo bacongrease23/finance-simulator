@@ -8,7 +8,7 @@ const CM_DISTRICTS = [
     id:'commons', name:'The Commons', color:'#4A8AC8',
     bg:'assets/districts/commons_bg.png',
     // SVG polygon as % of viewBox 0 0 100 100
-    poly:'49.7,21.3 46.2,38.1 18.5,38.3 18.4,52 0,52.2 0,0 49.7,0',
+    poly:'0.0,0.0 70.9,0.0 72.4,0.7 68.7,12.9 48.8,49.3 48.1,50.2 47.5,50.6 47.1,50.8 23.5,53.1 4.1,52.6 0.1,52.3',
     buildings:[
       {id:'medical', name:'Capital Heights Medical Center', desc:'Visit the hospital or apply for health jobs',  img:'assets/exteriors/capital_heights_medical_center.png', screen:'screen-location', location:'medical'},
       {id:'coffee',  name:'Morning Ledger Coffee',          desc:'Grab a coffee and check your to-do list',      img:'assets/exteriors/morning_ledger_coffee.png',           screen:'screen-location', location:'coffee'},
@@ -21,7 +21,7 @@ const CM_DISTRICTS = [
   {
     id:'oldtown', name:'Old Town', color:'#A84AC8',
     bg:'assets/districts/oldtown_bg.png',
-    poly:'19,36.6 45.9,36.4 45.9,56 45.3,62.2 42.4,66.6 36,72.8 32,82.9 22.3,73.5 20.4,70.4 19.3,66.8 18.8,59.9',
+    poly:'0.0,23.8 46.8,38.6 47.1,38.8 47.7,39.6 48.0,40.4 48.1,51.8 47.8,54.4 46.8,59.0 46.0,60.6 44.9,62.3 41.3,65.9 31.6,74.8 29.7,74.0 25.8,71.5 23.9,70.0 23.4,69.6 22.0,67.8 20.7,65.9 19.4,64.0 0.1,25.0',
     buildings:[
       {id:'grill',   name:'Capitol Grill',        desc:'Dine in or apply for restaurant jobs',   img:'assets/exteriors/capitol_grill.png',        screen:'screen-location', location:'grill'},
       {id:'bistro',  name:'Le Bistro Capital',    desc:'Upscale dining and hospitality jobs',     img:'assets/exteriors/le_bistro_capital.png',    screen:'screen-location', location:'bistro'},
@@ -33,7 +33,7 @@ const CM_DISTRICTS = [
   {
     id:'crestwood', name:'Crestwood', color:'#C8784A',
     bg:'assets/districts/crestwood_bg.png',
-    poly:'30.3,100 31.9,83.4 22.1,74.4 20.4,71.3 18.5,64.9 18.6,53.5 0,53.7 0,100 17,100',
+    poly:'18.2,50.3 32.6,75.2 33.0,76.1 33.1,76.8 31.4,99.7 30.7,99.9 5.8,99.9 0.3,99.7 0.2,96.7 0.0,78.0 0.0,59.8 0.1,54.1 0.3,53.9 4.5,51.3 5.3,51.1 9.7,50.8',
     buildings:[
       {id:'realty', name:'Crestwood Realty',       desc:'Browse homes for sale in Crestwood',   img:'assets/exteriors/crestwood_realty.png',       screen:'screen-housing',  location:'realty'},
       {id:'club',   name:'Crestwood Country Club',  desc:'Apply for event and hospitality jobs', img:'assets/exteriors/crestwood_country_club.png', screen:'screen-jobboard', location:'club'},
@@ -42,7 +42,7 @@ const CM_DISTRICTS = [
   {
     id:'financial', name:'The Financial District', color:'#C8A84A',
     bg:'assets/districts/financial_bg.png',
-    poly:'70,0 75.9,0 76.2,72.6 52.4,72.7 52.8,55.7 52.8,23.6 55.6,15.8 59.7,9.9 66.6,5.3',
+    poly:'73.1,0.0 75.9,0.1 76.2,1.3 76.6,32.7 76.7,57.8 76.6,65.9 76.3,67.5 75.8,67.6 50.1,68.2 49.1,68.0 48.8,67.5 48.9,66.2 52.0,34.6 52.5,31.3 54.4,24.5 55.6,21.6 56.6,20.2',
     buildings:[
       {id:'capital', name:'Capital Tower',            desc:'Apply for finance and business jobs',    img:'assets/exteriors/capital_tower.png',            screen:'screen-jobboard', location:'capital'},
       {id:'global',  name:'Global Equity Tower',      desc:'Apply for economics and investment jobs', img:'assets/exteriors/global_equity_tower.png',     screen:'screen-jobboard', location:'global'},
@@ -53,7 +53,7 @@ const CM_DISTRICTS = [
   {
     id:'capitol', name:'Capitol Square', color:'#4AC87A',
     bg:'assets/districts/capitol_bg.png',
-    poly:'41.9,79 47.3,73.2 75.7,72.8 75.7,100 37.2,100 37.7,89.6',
+    poly:'61.2,66.3 65.5,66.4 74.6,67.5 75.3,68.5 75.8,69.7 76.1,72.3 76.8,99.0 76.4,99.8 75.4,99.9 41.6,99.9 37.1,99.8 37.0,92.1 37.4,87.6 38.2,82.0 38.4,80.7 39.5,76.8 48.9,67.7 50.1,67.5',
     buildings:[
       {id:'fountain', name:'Central Fountain Plaza',        desc:'The heart of Capital Heights',       img:'assets/exteriors/central_fountain_plaza.png',        screen:'screen-location', location:'plaza'},
       {id:'dmv',      name:'DMV',                          desc:'Register your vehicle or update ID', img:'assets/exteriors/dmv.png',                           screen:'screen-location', location:'dmv'},
@@ -63,7 +63,7 @@ const CM_DISTRICTS = [
   {
     id:'eastbrook', name:'Eastbrook', color:'#C84A4A',
     bg:'assets/districts/eastbrook_bg.png',
-    poly:'76.2,54.9 99.9,55 100,100 76.3,100',
+    poly:'92.0,52.8 99.1,53.2 99.3,53.5 99.8,54.1 99.9,68.3 99.9,97.3 99.9,99.0 97.5,99.9 76.9,99.9 76.6,98.2 76.1,54.5 76.7,53.5 83.4,53.1',
     buildings:[
       {id:'meridian',  name:'Meridian Heights', desc:'Upscale apartments available to rent',   img:'assets/exteriors/meridian_heights.png', screen:'screen-housing', location:'meridian'},
       {id:'fairfax',   name:'Fairfax Commons',  desc:'Mid-range apartments available to rent', img:'assets/exteriors/fairfax_commons.png',  screen:'screen-housing', location:'fairfax'},
@@ -73,7 +73,7 @@ const CM_DISTRICTS = [
   {
     id:'riverside', name:'Riverside', color:'#4AC8C8',
     bg:'assets/districts/riverside_bg.png',
-    poly:'76.2,0 100,0 99.9,25.3 99.9,54.3 76.4,53.8',
+    poly:'75.7,0.0 99.6,0.0 99.8,3.7 99.9,8.0 99.9,19.2 99.9,54.0 93.8,54.6 88.8,54.3 79.1,53.6 76.7,52.5 76.4,50.8 76.0,32.2',
     buildings:[
       {id:'nova',       name:'Nova Park Residences', desc:'Modern apartments along the river', img:'assets/exteriors/nova_park_residences.png', screen:'screen-housing', location:'nova'},
       {id:'centennial', name:'Centennial Court',     desc:'Comfortable apartments to rent',    img:'assets/exteriors/centennial_court.png',     screen:'screen-housing', location:'centennial'},
@@ -117,46 +117,47 @@ function cmRender() {
 
 // ── MAP ────────────────────────────────────────────────────────
 function cmRenderMap(el) {
-  // Build unique clip-path IDs for each district
-  const defs = CM_DISTRICTS.map(d =>
-    `<clipPath id="clip-${d.id}" clipPathUnits="objectBoundingBox">
-      <polygon points="${d.poly.split(' ').map(pt => {
-        const [x,y] = pt.split(',');
-        return `${(parseFloat(x)/100).toFixed(4)},${(parseFloat(y)/100).toFixed(4)}`;
-      }).join(' ')}"/>
-    </clipPath>`
-  ).join('');
+  // Convert poly strings to clipPath objectBoundingBox format (0-1 scale)
+  const defs = CM_DISTRICTS.map(d => {
+    const pts = d.poly.split(' ').map(pt => {
+      const [x,y] = pt.split(',');
+      return `${(parseFloat(x)/100).toFixed(4)},${(parseFloat(y)/100).toFixed(4)}`;
+    }).join(' ');
+    return `<clipPath id="clip-${d.id}" clipPathUnits="objectBoundingBox">
+      <polygon points="${pts}"/>
+    </clipPath>`;
+  }).join('');
 
   el.innerHTML = `
     <div class="cm-map-root">
-      <!-- Hidden SVG just for clip-path definitions -->
-      <svg style="position:absolute;width:0;height:0;overflow:hidden;">
-        <defs>${defs}</defs>
-      </svg>
+      <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>${defs}</defs></svg>
 
-      <!-- Base map — always visible underneath -->
+      <!-- Dimmed base map — always underneath -->
       <img src="assets/map/map_full_capital_heights.png" class="cm-base-map" draggable="false"/>
 
-      <!-- One lifting layer per district:
-           - The image is the FULL map, clipped to the district polygon
-           - This way edges are perfectly clean (no rough cuts)
-           - The whole clipped piece lifts on hover -->
+      <!-- Clipped district layers — each is a full map image cropped to its polygon -->
+      <!-- These lift individually on hover -->
       ${CM_DISTRICTS.map(d => `
-        <div class="cm-district-layer" id="layer-${d.id}"
-          style="--district-color:${d.color};"
-          onmouseenter="cmHover('${d.id}')"
-          onmouseleave="cmUnhover()"
-          onclick="cmEnterDistrict('${d.id}')">
+        <div class="cm-district-layer" id="layer-${d.id}">
           <img src="assets/map/map_full_capital_heights.png"
             class="cm-layer-img"
             style="clip-path:url(#clip-${d.id});"
             draggable="false"/>
-          <!-- Invisible SVG polygon as precise hit zone -->
-          <svg class="cm-hit-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <polygon points="${d.poly}" fill="transparent"/>
-          </svg>
-        </div>
-      `).join('')}
+        </div>`).join('')}
+
+      <!-- Single SVG on top handles ALL mouse events precisely per polygon -->
+      <svg class="cm-event-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
+        onmouseleave="cmUnhover()">
+        ${CM_DISTRICTS.map(d => `
+          <polygon
+            points="${d.poly}"
+            fill="transparent"
+            stroke="transparent"
+            stroke-width="0.5"
+            style="cursor:pointer;"
+            onmouseenter="cmHover('${d.id}')"
+            onclick="cmEnterDistrict('${d.id}')"/>`).join('')}
+      </svg>
 
       <!-- District name bar -->
       <div class="cm-name-bar" id="cm-name-bar">
@@ -168,20 +169,17 @@ function cmRenderMap(el) {
 // ── Hover ──────────────────────────────────────────────────────
 window.cmHover = function(id) {
   const d = CM_DISTRICTS.find(d => d.id === id);
-
-  // Lift this district
-  const layer = document.getElementById(`layer-${id}`);
-  if (layer) layer.classList.add('lifted');
-
-  // Dim all others
   CM_DISTRICTS.forEach(other => {
-    if (other.id !== id) {
-      const el = document.getElementById(`layer-${other.id}`);
-      if (el) el.classList.add('dimmed');
+    const layer = document.getElementById(`layer-${other.id}`);
+    if (!layer) return;
+    if (other.id === id) {
+      layer.classList.add('lifted');
+      layer.classList.remove('dimmed');
+    } else {
+      layer.classList.remove('lifted');
+      layer.classList.add('dimmed');
     }
   });
-
-  // Show name
   const bar = document.getElementById('cm-name-bar');
   const txt = document.getElementById('cm-name-text');
   if (bar && txt) {
@@ -193,8 +191,8 @@ window.cmHover = function(id) {
 
 window.cmUnhover = function() {
   CM_DISTRICTS.forEach(d => {
-    const el = document.getElementById(`layer-${d.id}`);
-    if (el) { el.classList.remove('lifted'); el.classList.remove('dimmed'); }
+    const layer = document.getElementById(`layer-${d.id}`);
+    if (layer) { layer.classList.remove('lifted'); layer.classList.remove('dimmed'); }
   });
   const bar = document.getElementById('cm-name-bar');
   if (bar) bar.classList.remove('visible');
