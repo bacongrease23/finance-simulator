@@ -143,19 +143,20 @@ function cmRenderMap(el) {
 window.cmEnterDistrict = function(id) {
   cm.activeDistrict = CM_DISTRICTS.find(d => d.id === id);
   cm.carouselIdx = 0;
+  cm.view = 'district'; // set BEFORE render
 
-  // Fade to black then render district
   const fadeEl = document.createElement('div');
-  fadeEl.style.cssText = 'position:fixed;inset:0;background:#2A1F0E;opacity:0;z-index:9990;transition:opacity 0.5s ease;pointer-events:none;';
+  fadeEl.style.cssText = 'position:fixed;inset:0;background:#2A1F0E;opacity:0;z-index:9990;transition:opacity 0.5s ease;pointer-events:all;';
   document.body.appendChild(fadeEl);
 
   requestAnimationFrame(() => {
     fadeEl.style.opacity = '1';
     setTimeout(() => {
-      cmRender();
-      // Fade in
-      fadeEl.style.opacity = '0';
-      setTimeout(() => fadeEl.remove(), 500);
+      cmRender(); // now renders district view
+      requestAnimationFrame(() => {
+        fadeEl.style.opacity = '0';
+        setTimeout(() => fadeEl.remove(), 500);
+      });
     }, 500);
   });
 };
