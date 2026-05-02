@@ -87,11 +87,24 @@ window.CM_DISTRICTS = CM_DISTRICTS;
 
 let cm = { player:null, view:'map', activeDistrict:null, carouselIdx:0 };
 
-window.initCityMap = function(player) {
+window.initCityMap = async function(player) {
   cm.player = player;
   cm.view = 'map';
   cm.activeDistrict = null;
   cm.carouselIdx = 0;
+
+  // Load saved polygon coordinates from Firebase
+  // If found, override the hardcoded defaults
+  try {
+    const saved = await window.GameState.FirestoreDB.loadDistrictPolygons();
+    if (saved) {
+      CM_DISTRICTS.forEach(d => {
+        if (saved[d.id]) d.poly = saved[d.id];
+      });
+      window.CM_DISTRICTS = CM_DISTRICTS;
+    }
+  } catch(e) {}
+
   cmRender();
 };
 

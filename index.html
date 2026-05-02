@@ -156,7 +156,7 @@
       <select id="cal-district-select" style="background:#2a2218;border:1px solid #4a3a20;border-radius:6px;color:#e8d8b0;padding:8px 12px;font-size:0.85rem;" onchange="calSelectDistrict(this.value)">
         <option value="">— Select District —</option>
       </select>
-      <button onclick="calCopyOutput()" style="background:#C8920A;border:none;border-radius:8px;color:white;font-weight:700;padding:10px 20px;cursor:pointer;">📋 Copy All Coordinates</button>
+      <button onclick="calSavePolygons()" style="background:#C8920A;border:none;border-radius:8px;color:white;font-weight:700;padding:10px 20px;cursor:pointer;">💾 Save to Game</button>
       <button onclick="calAddPoint()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#e8d8b0;padding:10px 16px;cursor:pointer;">+ Add Point</button>
       <button onclick="calRemovePoint()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#e05252;padding:10px 16px;cursor:pointer;">− Remove Last Point</button>
       <button onclick="adminCloseCalibrator()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#888;padding:10px 16px;cursor:pointer;margin-left:auto;">✕ Close</button>
@@ -462,27 +462,31 @@
       if (pts.length > 3) { pts.pop(); calRenderSVG(); }
     };
 
-    window.calCopyOutput = function() {
-      // Generate the poly strings for all districts
-      const lines = window.CM_DISTRICTS.map(d => {
+    window.calSavePolygons = async function() {
+      const btn = document.querySelector('[onclick="calSavePolygons()"]');
+      if (btn) { btn.textContent = '⏳ Saving...'; btn.disabled = true; }
+
+      // Build the polygons object
+      const polygons = {};
+      window.CM_DISTRICTS.forEach(d => {
         const pts = calPoints[d.id];
-        const polyStr = pts.map(p => p.x + ',' + p.y).join(' ');
-        return `  // ${d.name}\n  poly:'${polyStr}',`;
+        if (pts) polygons[d.id] = pts.map(p => p.x + ',' + p.y).join(' ');
       });
-      const output = lines.join('\n\n');
-      navigator.clipboard.writeText(output).then(() => {
-        alert('Coordinates copied to clipboard!\n\nPaste into citymap.js, replacing each poly: value.');
-      }).catch(() => {
-        // Fallback: show in a text area
-        const ta = document.createElement('textarea');
-        ta.value = output;
-        ta.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;z-index:99999;background:#1a1208;color:#e8d8b0;border:2px solid #C8920A;border-radius:8px;padding:16px;font-family:monospace;font-size:12px;';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        setTimeout(() => ta.remove(), 3000);
-        alert('Copied! (fallback method)');
-      });
+
+      try {
+        await FirestoreDB.saveDistrictPolygons(polygons);
+
+        // Also update live CM_DISTRICTS in memory so map reflects changes immediately
+        window.CM_DISTRICTS.forEach(d => {
+          if (polygons[d.id]) d.poly = polygons[d.id];
+        });
+
+        if (btn) { btn.textContent = '✅ Saved!'; btn.disabled = false; }
+        setTimeout(() => { if (btn) btn.textContent = '💾 Save to Game'; }, 2000);
+      } catch(e) {
+        if (btn) { btn.textContent = '❌ Error — try again'; btn.disabled = false; }
+        console.error('Save failed:', e);
+      }
     };
 
     // Re-render calibrator on window resize
