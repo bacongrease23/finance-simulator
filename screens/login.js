@@ -83,14 +83,45 @@ function lgRender() {
 }
 
 // ── LANDING ───────────────────────────────────────────────────
+function lgRenderMenu(el) {
+  el.innerHTML = `
+    <div class="lg-landing" style="opacity:0;transition:opacity 0.6s ease;" id="lg-main-landing">
+      <div class="lg-landing-inner">
+        <h1 class="lg-title">CAPITAL<br>HEIGHTS</h1>
+        <p class="lg-subtitle">Financial Literacy Simulator</p>
+        <div class="lg-landing-btns">
+          <button class="lg-primary-btn" onclick="lgStartNew()">
+            🏙️ Begin Your Journey
+          </button>
+          <button class="lg-secondary-btn" onclick="lgStartReturning()">
+            🔑 Return to Your Journey
+          </button>
+        </div>
+        <button class="lg-admin-link" onclick="showScreen('screen-admin-login')">Admin</button>
+      </div>
+    </div>`;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const landing = document.getElementById('lg-main-landing');
+      if (landing) landing.style.opacity = '1';
+    });
+  });
+}
+
 function lgRenderLanding(el) {
-  // Start fully dark, fade in splash over 1s, hold 4s, fade out to menu
+  // Only show splash once per browser session
+  if (sessionStorage.getItem('ch_splash_shown')) {
+    lgRenderMenu(el);
+    return;
+  }
+  sessionStorage.setItem('ch_splash_shown', '1');
+
   el.innerHTML = `
     <div class="lg-splash" id="lg-splash">
       <img src="assets/capital_heights_landing_page.png" class="lg-splash-img"/>
     </div>`;
 
-  // Fade in from dark (starts at opacity 0, transitions to 1)
+  // Fade in from dark over 1s
   const splash = document.getElementById('lg-splash');
   splash.style.opacity = '0';
   requestAnimationFrame(() => {
@@ -100,36 +131,12 @@ function lgRenderLanding(el) {
     });
   });
 
-  // After 4s hold, fade out then show menu
+  // After 5s total (1s fade in + 4s hold), fade out then show menu
   setTimeout(() => {
     splash.style.transition = 'opacity 0.7s ease';
     splash.style.opacity = '0';
-    setTimeout(() => {
-      el.innerHTML = `
-        <div class="lg-landing" style="opacity:0;transition:opacity 0.6s ease;" id="lg-main-landing">
-          <div class="lg-landing-inner">
-            <h1 class="lg-title">CAPITAL<br>HEIGHTS</h1>
-            <p class="lg-subtitle">Financial Literacy Simulator</p>
-            <div class="lg-landing-btns">
-              <button class="lg-primary-btn" onclick="lgStartNew()">
-                🏙️ Begin Your Journey
-              </button>
-              <button class="lg-secondary-btn" onclick="lgStartReturning()">
-                🔑 Return to Your Journey
-              </button>
-            </div>
-            <button class="lg-admin-link" onclick="showScreen('screen-admin-login')">Admin</button>
-          </div>
-        </div>`;
-      // Fade in the menu
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const landing = document.getElementById('lg-main-landing');
-          if (landing) landing.style.opacity = '1';
-        });
-      });
-    }, 700);
-  }, 5000); // 1s fade in + 4s hold
+    setTimeout(() => lgRenderMenu(el), 700);
+  }, 5000);
 }
 
 window.lgStartNew = async function() {
@@ -157,7 +164,6 @@ window.lgStartReturning = async function() {
 
 // ── NEW: Character Select ─────────────────────────────────────
 function lgRenderNewSelect(el) {
-  const available = LG_CHARACTERS.filter(c => !lg.claimedMap[c.id]);
   el.innerHTML = `
     <div class="lg-select-wrap">
       <div class="lg-select-header">
@@ -168,14 +174,15 @@ function lgRenderNewSelect(el) {
         ${LG_CHARACTERS.map(c => {
           const claimed = !!lg.claimedMap[c.id];
           const hasAssets = c.imgs.length > 0;
-          if (claimed) return '';
+          const isAvailable = hasAssets && !claimed;
           return `
-            <div class="lg-char-slot ${hasAssets ? 'open' : 'locked'}"
-                 ${hasAssets ? `onclick="lgNewSelectChar('${c.id}')"` : ''}>
+            <div class="lg-char-slot ${isAvailable ? 'open' : 'locked'}"
+                 ${isAvailable ? `onclick="lgNewSelectChar('${c.id}')"` : ''}>
               ${hasAssets
                 ? `<img src="${c.imgs[0]}" class="lg-char-img"/>`
                 : `<div class="lg-char-silhouette"></div>`}
-              <div class="lg-char-label">${hasAssets ? c.label : '🔒 LOCKED'}</div>
+              ${claimed ? `<div class="lg-char-claimed-overlay">🔒</div>` : ''}
+              <div class="lg-char-label">${claimed ? lg.claimedMap[c.id]?.firstName || 'Taken' : hasAssets ? c.label : '🔒 Coming Soon'}</div>
             </div>`;
         }).join('')}
       </div>

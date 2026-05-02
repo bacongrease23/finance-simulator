@@ -4,6 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Capital Heights</title>
+  <script>
+    // Trigger fullscreen as early as possible
+    (function() {
+      function tryFS() {
+        var el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+      }
+      // Try immediately
+      tryFS();
+      // Also on first interaction (browsers require user gesture)
+      var done = false;
+      function onInteract() {
+        if (done) return;
+        done = true;
+        tryFS();
+        ['click','keydown','touchstart','mousedown'].forEach(function(ev) {
+          document.removeEventListener(ev, onInteract);
+        });
+      }
+      ['click','keydown','touchstart','mousedown'].forEach(function(ev) {
+        document.addEventListener(ev, onInteract);
+      });
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -196,51 +222,15 @@
     // initLogin() is called by login.js self-boot
     // Admin password loaded from Firebase when admin panel opens
 
-    // ── Fullscreen ────────────────────────────────
-    (function() {
-      function requestFS() {
-        const el = document.documentElement;
-        try {
-          if (el.requestFullscreen) el.requestFullscreen();
-          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-          else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
-        } catch(e) {}
-      }
-
-      // Try immediately on page load (works in some browsers)
-      requestFS();
-
-      // Also trigger on the very first interaction of any kind
-      const events = ['click','keydown','touchstart','mousedown'];
-      function onFirstInteraction() {
-        requestFS();
-        events.forEach(ev => document.removeEventListener(ev, onFirstInteraction));
-      }
-      events.forEach(ev => document.addEventListener(ev, onFirstInteraction, { once: false }));
-
-      // Show/hide exit button based on fullscreen state
-      function updateFsBtn() {
-        const btn = document.getElementById('fs-exit-btn');
-        if (!btn) return;
-        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
-        btn.style.display = isFs ? 'flex' : 'none';
-      }
-      document.addEventListener('fullscreenchange', updateFsBtn);
-      document.addEventListener('webkitfullscreenchange', updateFsBtn);
-
-      // ESC key exits fullscreen (browser handles this natively,
-      // but we also wire it manually in case it's suppressed)
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' || e.key === 'F11') {
-          const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
-          if (e.key === 'F11') {
-            e.preventDefault();
-            isFs ? window.exitFullscreen() : requestFS();
-          }
-          // ESC is handled natively by the browser to exit fullscreen
-        }
-      });
-    })();
+    // ── Fullscreen exit button visibility ───────────
+    function updateFsBtn() {
+      const btn = document.getElementById('fs-exit-btn');
+      if (!btn) return;
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      btn.style.display = isFs ? 'flex' : 'none';
+    }
+    document.addEventListener('fullscreenchange', updateFsBtn);
+    document.addEventListener('webkitfullscreenchange', updateFsBtn);
 
     window.exitFullscreen = function() {
       try {
@@ -264,36 +254,27 @@
     window.adminForceResetPassword = async function() {
       try {
         await FirestoreDB.setAdminConfig({ adminPassword: 'password' });
-        ADMIN_PASSWORD = 'password';
         alert('Password reset to: password');
       } catch(e) { alert('Error: ' + e.message); }
     };
 
     window.handleAdminLogin = async function() {
       const passEl = document.getElementById('input-admin-pass');
-      const pass = passEl.value;
+      const pass = passEl.value.trim();
       const err  = document.getElementById('admin-login-error');
-      // Load from Firebase but only override if a custom password has been set
+      // Check Firebase first, fall back to hardcoded default
+      let correctPass = 'password';
       try {
         const cfg = await FirestoreDB.getAdminConfig();
-        if (cfg && cfg.adminPassword && cfg.adminPassword.length > 0) {
-          ADMIN_PASSWORD = cfg.adminPassword;
-        } else {
-          // Nothing stored yet — write the default so it's consistent
-          await FirestoreDB.setAdminConfig({ adminPassword: 'password' });
-          ADMIN_PASSWORD = 'password';
-        }
-      } catch(e) {
-        ADMIN_PASSWORD = 'password'; // fallback if Firebase fails
-      }
-      if (pass === ADMIN_PASSWORD) {
-        passEl.value = '';
+        if (cfg && cfg.adminPassword) correctPass = cfg.adminPassword;
+      } catch(e) {}
+      passEl.value = '';
+      if (pass === correctPass) {
         err.style.display = "none";
         showScreen('screen-admin');
         loadAdminData();
       } else {
-        passEl.value = '';
-        err.textContent = "Incorrect password. Try: password";
+        err.textContent = "Incorrect password.";
         err.style.display = "block";
       }
     };
