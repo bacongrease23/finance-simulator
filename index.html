@@ -243,32 +243,7 @@
   <!-- 15. CALENDAR (injected by calendar.js) -->
   <div id="screen-calendar" class="screen"></div>
 
-  <!-- ══════════════════════════════════════════════
-       DEV TOOLBAR — press ` (backtick) to toggle
-       Lets you jump to any screen instantly
-       WITHOUT playing through the game
-  ══════════════════════════════════════════════ -->
-  <div id="dev-toolbar" style="display:none;">
-    <div class="dev-inner">
-      <span class="dev-label">DEV SHORTCUTS</span>
-      <button onclick="devGoto('screen-login')">Login</button>
-      <button onclick="devGoto('screen-onboarding')">Onboarding</button>
-      <button onclick="devGoto('screen-citymap')">City Map</button>
-      <button onclick="devGoto('screen-home')">Home</button>
-      <button onclick="devGoto('screen-computer')">Computer</button>
-      <button onclick="devGoto('screen-email')">Email</button>
-      <button onclick="devGoto('screen-banking')">Banking</button>
-      <button onclick="devGoto('screen-jobboard')">Job Board</button>
-      <button onclick="devGoto('screen-housing')">Housing</button>
-      <button onclick="devGoto('screen-rent')">Rent</button>
-      <button onclick="devGoto('screen-grocery')">Grocery</button>
-      <button onclick="devGoto('screen-todos')">To-Do</button>
-      <button onclick="devGoto('screen-calendar')">Calendar</button>
-      <button onclick="devGoto('screen-admin')">Admin</button>
-      <span class="dev-label" style="margin-left:12px;">INJECT TEST PLAYER</span>
-      <button onclick="devInjectPlayer()">Use Test Player</button>
-    </div>
-  </div>
+
 
   <!-- ══════════════════════════════════════════════
        SCRIPTS
@@ -303,10 +278,39 @@
     };
 
     // ── Screen switcher ───────────────────────────
-    window.showScreen = function(id) {
+    // Navigation history
+    const navHistory = [];
+    const noHistoryScreens = new Set(['screen-login','screen-admin-login']);
+
+    window.showScreen = function(id, addToHistory = true) {
+      const current = document.querySelector('.screen.active');
+      const currentId = current ? current.id : null;
+      if (addToHistory && currentId && currentId !== id && !noHistoryScreens.has(currentId)) {
+        navHistory.push(currentId);
+        if (navHistory.length > 20) navHistory.shift();
+      }
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       const el = document.getElementById(id);
       if (el) el.classList.add('active');
+    };
+
+    window.goBack = function() {
+      const p = window.GameState && window.GameState.player;
+      if (navHistory.length === 0) {
+        if (p) { showScreen('screen-citymap', false); if (window.initCityMap) window.initCityMap(p); }
+        else   { showScreen('screen-login', false); if (window.initLogin) window.initLogin(); }
+        return;
+      }
+      const prev = navHistory.pop();
+      showScreen(prev, false);
+      if (prev === 'screen-citymap'    && window.initCityMap)    window.initCityMap(p);
+      if (prev === 'screen-home'       && window.initHome)       window.initHome(p);
+      if (prev === 'screen-onboarding' && window.initOnboarding) window.initOnboarding(p);
+    };
+
+    window.adminBack = function() {
+      adminPinClear && adminPinClear();
+      goBack();
     };
 
     // ── Login — now handled by login.js ──────────
@@ -851,34 +855,6 @@
         btn.disabled = false;
       }
     };
-
-    // ── DEV TOOLBAR ───────────────────────────────
-    // Press backtick ` to show/hide
-    document.addEventListener('keydown', e => {
-      if (e.key === '`') {
-        const tb = document.getElementById('dev-toolbar');
-        tb.style.display = tb.style.display === 'none' ? 'flex' : 'none';
-      }
-    });
-
-    window.devGoto = function(screenId) {
-      showScreen(screenId);
-      const p = window.GameState.player;
-      if (screenId === 'screen-onboarding' && window.initOnboarding) window.initOnboarding(p);
-      if (screenId === 'screen-citymap'    && window.initCityMap)    window.initCityMap(p);
-      if (screenId === 'screen-home'       && window.initHome)       window.initHome(p);
-      if (screenId === 'screen-computer'   && window.initComputer)   window.initComputer(p);
-      if (screenId === 'screen-email'      && window.initEmail)      window.initEmail(p);
-      if (screenId === 'screen-banking'    && window.initBanking)    window.initBanking(p);
-      if (screenId === 'screen-jobboard'   && window.initJobBoard)   window.initJobBoard(p);
-      if (screenId === 'screen-housing'    && window.initHousing)    window.initHousing(p);
-      if (screenId === 'screen-rent'       && window.initRent)       window.initRent(p);
-      if (screenId === 'screen-grocery'    && window.initGrocery)    window.initGrocery(p);
-      if (screenId === 'screen-todos'      && window.initTodos)      window.initTodos(p);
-      if (screenId === 'screen-calendar'   && window.initCalendar)   window.initCalendar(p);
-      if (screenId === 'screen-admin')     loadAdminData();
-    };
-
     // Injects a fake test player so you can test screens
     // without logging in as a real student
     window.devInjectPlayer = async function() {
