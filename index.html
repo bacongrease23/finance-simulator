@@ -99,12 +99,17 @@
         <p id="reset-status" class="feedback"></p>
       </div>
       <div class="admin-card">
-        <h2>Change Admin Password</h2>
-        <p>Current password is required each login. Update it here.</p>
+        <h2>Change Admin PIN</h2>
+        <p>Enter a new 6-digit PIN. You will need this every time you access the admin portal.</p>
         <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
-          <input type="password" id="admin-new-password" placeholder="New password" style="flex:1;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#f0f0f0;font-size:0.9rem;padding:10px;"/>
-          <button onclick="adminChangePassword()">Update</button>
+          <input type="text" id="admin-new-pin" placeholder="6-digit PIN"
+            maxlength="6" pattern="[0-9]{6}"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            style="flex:1;letter-spacing:8px;font-size:1.2rem;font-weight:700;text-align:center;"
+            oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6)"/>
+          <button onclick="adminChangePin()">Update</button>
         </div>
+        <button class="link-btn" style="color:var(--brick);margin-top:8px;text-align:left;" onclick="adminForceResetPin()">Reset PIN to default</button>
         <p id="password-change-status" class="feedback"></p>
       </div>
       <div class="admin-card">
@@ -507,39 +512,75 @@
     };
 
     // ── Admin login ───────────────────────────────
-    window.adminForceResetPassword = async function() {
+    window.adminForceResetPin = async function() {
       try {
-        await FirestoreDB.setAdminConfig({ adminPassword: 'password', customPasswordSet: false });
-        alert('Password reset to: password');
+        await FirestoreDB.setAdminConfig({ adminPin: '072492', customPinSet: false });
+        alert('PIN reset to default.');
       } catch(e) { alert('Error: ' + e.message); }
     };
 
-    window.handleAdminLogin = async function() {
-      const passEl = document.getElementById('input-admin-pass');
-      const pass = passEl.value.trim();
-      const err  = document.getElementById('admin-login-error');
-      passEl.value = '';
+    // ── Admin PIN system ──────────────────────────
+    let adminPin = '';
+    const ADMIN_PIN_LENGTH = 6;
 
-      // ALWAYS start with 'password' as the baseline
-      // Only override if a custom password has been explicitly saved via the change panel
-      let correctPass = 'password';
+    window.adminPinKey = async function(key) {
+      const err = document.getElementById('admin-login-error');
+      err.style.display = 'none';
+
+      if (key === '⌫') {
+        adminPin = adminPin.slice(0, -1);
+        adminUpdateDots();
+        return;
+      }
+      if (adminPin.length >= ADMIN_PIN_LENGTH) return;
+      adminPin += key;
+      adminUpdateDots();
+
+      if (adminPin.length === ADMIN_PIN_LENGTH) {
+        await adminVerifyPin();
+      }
+    };
+
+    function adminUpdateDots() {
+      const dots = document.querySelectorAll('.admin-pin-dot');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('filled', i < adminPin.length);
+      });
+    }
+
+    window.adminPinClear = function() {
+      adminPin = '';
+      adminUpdateDots();
+      const err = document.getElementById('admin-login-error');
+      if (err) err.style.display = 'none';
+    };
+
+    async function adminVerifyPin() {
+      const err = document.getElementById('admin-login-error');
+      let correctPin = '072492';
       try {
         const cfg = await FirestoreDB.getAdminConfig();
-        // Only use stored password if it exists AND is not empty AND was intentionally set
-        if (cfg && cfg.adminPassword && cfg.customPasswordSet === true) {
-          correctPass = cfg.adminPassword;
+        if (cfg && cfg.adminPin && cfg.customPinSet === true) {
+          correctPin = cfg.adminPin;
         }
       } catch(e) {}
 
-      if (pass === correctPass) {
-        err.style.display = "none";
+      if (adminPin === correctPin) {
+        adminPin = '';
+        adminUpdateDots();
+        err.style.display = 'none';
         showScreen('screen-admin');
         loadAdminData();
       } else {
-        err.textContent = "Incorrect password. Default is: password";
-        err.style.display = "block";
+        adminPin = '';
+        adminUpdateDots();
+        // Never reveal the PIN — just say incorrect
+        err.textContent = 'Incorrect PIN.';
+        err.style.display = 'block';
       }
-    };
+    }
+
+    window.handleAdminLogin = function() {}; // legacy stub — unused
 
     // ── Admin data ────────────────────────────────
     async function loadAdminData() {
@@ -618,19 +659,22 @@
     };
 
     // ── Change admin password ─────────────────────
-    window.adminChangePassword = async function() {
-      const newPass = document.getElementById('admin-new-password').value.trim();
-      const status  = document.getElementById('password-change-status');
-      if (!newPass || newPass.length < 4) {
-        status.textContent = 'Password must be at least 4 characters.';
+    window.adminChangePin = async function() {
+      const newPin = document.getElementById('admin-new-pin').value.trim();
+      const status = document.getElementById('password-change-status');
+      if (!newPin || newPin.length !== 6 || !/^[0-9]{6}$/.test(newPin)) {
+        status.textContent = 'PIN must be exactly 6 digits.';
+        status.style.color = 'var(--brick)';
         return;
       }
       try {
-        await FirestoreDB.setAdminConfig({ adminPassword: newPass, customPasswordSet: true });
-        document.getElementById('admin-new-password').value = '';
-        status.textContent = 'Password updated to: ' + newPass;
+        await FirestoreDB.setAdminConfig({ adminPin: newPin, customPinSet: true });
+        document.getElementById('admin-new-pin').value = '';
+        status.textContent = 'PIN updated successfully.';
+        status.style.color = 'var(--forest)';
       } catch(e) {
         status.textContent = 'Error: ' + e.message;
+        status.style.color = 'var(--brick)';
       }
     };
 

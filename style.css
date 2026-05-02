@@ -1047,3 +1047,40 @@ tr:hover td { background: var(--parch); }
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.8; }
 }
+
+/* ── Admin PIN screen ── */
+.admin-pin-wrap {
+  width: 100vw; height: 100vh;
+  background: var(--parch);
+  display: flex; align-items: center; justify-content: center;
+}
+.admin-pin-box {
+  background: var(--parch-light);
+  border: 1.5px solid var(--parch-darker);
+  border-radius: 20px; padding: 48px 44px;
+  width: 380px; text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+.admin-pin-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem; color: var(--gold-dark);
+  margin-bottom: 8px;
+}
+.admin-pin-sub {
+  font-size: 0.9rem; color: var(--ink-light);
+  margin-bottom: 28px;
+}
+.admin-pin-dots {
+  display: flex; gap: 14px;
+  justify-content: center; margin-bottom: 28px;
+}
+.admin-pin-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--parch-darker);
+  background: transparent; transition: all 0.15s;
+}
+.admin-pin-dot.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(200,146,10,0.4);
+}
