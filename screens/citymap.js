@@ -82,6 +82,9 @@ const CM_DISTRICTS = [
   },
 ];
 
+// Expose to admin calibrator
+window.CM_DISTRICTS = CM_DISTRICTS;
+
 let cm = { player:null, view:'map', activeDistrict:null, carouselIdx:0 };
 
 window.initCityMap = function(player) {

@@ -294,7 +294,7 @@
     };
 
     // Current polygon points per district (% of image, 0-100)
-    // Loaded from citymap.js CM_DISTRICTS on open
+    // Loaded from citymap.js window.CM_DISTRICTS on open
     let calPoints = {}; // { districtId: [{x,y}, ...] }
     let calActive = null;
     let calDragging = null;
@@ -305,17 +305,11 @@
       cal.style.display = 'flex';
       cal.style.flexDirection = 'column';
 
-      // Import district data from the live CM_DISTRICTS variable
-      // (citymap.js must be loaded)
-      if (typeof CM_DISTRICTS === 'undefined') {
-        alert('City map not loaded yet. Navigate to the city map first, then return to admin.');
-        cal.style.display = 'none';
-        return;
-      }
+      // window.CM_DISTRICTS is always available — citymap.js is imported at page load
 
       // Parse existing polygon strings into point arrays
       calPoints = {};
-      CM_DISTRICTS.forEach(d => {
+      window.CM_DISTRICTS.forEach(d => {
         calPoints[d.id] = d.poly.split(' ').map(pt => {
           const [x,y] = pt.split(',').map(Number);
           return {x, y};
@@ -325,7 +319,7 @@
       // Populate district select
       const sel = document.getElementById('cal-district-select');
       sel.innerHTML = '<option value="">— Select District —</option>';
-      CM_DISTRICTS.forEach(d => {
+      window.CM_DISTRICTS.forEach(d => {
         sel.innerHTML += `<option value="${d.id}">${d.name}</option>`;
       });
 
@@ -340,7 +334,7 @@
     window.calSelectDistrict = function(id) {
       calActive = id || null;
       document.getElementById('cal-active-label').textContent =
-        id ? CM_DISTRICTS.find(d=>d.id===id).name + ' — drag points' : 'Click a district polygon';
+        id ? window.CM_DISTRICTS.find(d=>d.id===id).name + ' — drag points' : 'Click a district polygon';
       calRenderSVG();
     };
 
@@ -354,7 +348,7 @@
       let html = '';
 
       // Draw all districts
-      CM_DISTRICTS.forEach(d => {
+      window.CM_DISTRICTS.forEach(d => {
         const pts = calPoints[d.id];
         if (!pts) return;
         const isActive = d.id === calActive;
@@ -470,7 +464,7 @@
 
     window.calCopyOutput = function() {
       // Generate the poly strings for all districts
-      const lines = CM_DISTRICTS.map(d => {
+      const lines = window.CM_DISTRICTS.map(d => {
         const pts = calPoints[d.id];
         const polyStr = pts.map(p => p.x + ',' + p.y).join(' ');
         return `  // ${d.name}\n  poly:'${polyStr}',`;
