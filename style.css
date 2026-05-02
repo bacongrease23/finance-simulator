@@ -969,3 +969,23 @@ tr:hover td { background: var(--parch); }
 .lg-char-slot.locked .lg-char-img {
   filter: grayscale(60%) brightness(0.7);
 }
+
+/* ── Missing building placeholder ── */
+.cm-building-placeholder {
+  height: 280px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px;
+  color: var(--ink-faint);
+  font-size: 4rem;
+  background: var(--parch-dark);
+  border-radius: 12px;
+  width: 100%;
+}
+.cm-building-placeholder span {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}

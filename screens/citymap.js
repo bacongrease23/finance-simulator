@@ -9,10 +9,10 @@ const CM_DISTRICTS = [
     poly:[{x:0,y:0},{x:42,y:0},{x:42,y:52},{x:0,y:52}],
     buildings:[
       {id:'medical',  name:'Capital Heights Medical Center', desc:'Visit the hospital or apply for health jobs',   img:'assets/exteriors/capital_heights_medical_center.png', screen:'screen-location', location:'medical'},
-      {id:'metro',    name:'Metro Market',                   desc:'Purchase groceries for the week',               img:'assets/exteriors/metro_market.png',                    screen:'screen-grocery',  location:'grocery'},
       {id:'coffee',   name:'Morning Ledger Coffee',          desc:'Grab a coffee and check your to-do list',       img:'assets/exteriors/morning_ledger_coffee.png',           screen:'screen-location', location:'coffee'},
-      {id:'bakery',   name:'Heights Bakery',                 desc:'Pick up a meal or a snack',                     img:'assets/exteriors/heights_bakery.png',                  screen:'screen-location', location:'bakery'},
       {id:'gym',      name:'Iron District Gym',              desc:'Stay healthy or apply for fitness jobs',         img:'assets/exteriors/iron_district_gym.png',               screen:'screen-location', location:'gym'},
+      {id:'metro',    name:'Metro Market',                   desc:'Purchase groceries for the week',               img:'assets/exteriors/metro_market.png',                    screen:'screen-grocery',  location:'grocery'},
+      {id:'bakery',   name:'Heights Bakery',                 desc:'Pick up a meal or a snack',                     img:'assets/exteriors/heights_bakery.png',                  screen:'screen-location', location:'bakery'},
       {id:'office',   name:'Commons Office Building',        desc:'Apply for professional office jobs',             img:'assets/exteriors/commons_office_building.png',         screen:'screen-jobboard', location:'office'},
     ]
   },
@@ -45,7 +45,7 @@ const CM_DISTRICTS = [
       {id:'capital',  name:'Capital Tower',            desc:'Apply for finance and business jobs',    img:'assets/exteriors/capital_tower.png',            screen:'screen-jobboard', location:'capital'},
       {id:'global',   name:'Global Equity Tower',      desc:'Apply for economics and investment jobs', img:'assets/exteriors/global_equity_tower.png',     screen:'screen-jobboard', location:'global'},
       {id:'bank',     name:'Siena Credit Union',       desc:'Manage your bank account',               img:'assets/exteriors/siena_bank.png',               screen:'screen-banking',  location:'bank'},
-      {id:'hotel',    name:'Financial District Hotel', desc:'Apply for hospitality and hotel jobs',    img:'assets/exteriors/financial_district_hotel.png', screen:'screen-jobboard', location:'hotel'},
+      {id:'hotel',    name:'Financial District Hotel', desc:'Apply for hospitality and hotel jobs',    img:'assets/exteriors/financial_district_hotel.png', screen:'screen-jobboard', location:'hotel', placeholder:true},
     ]
   },
   {
@@ -158,8 +158,9 @@ function cmRenderDistrict(el) {
         <div class="cm-district-carousel">
           <button class="cm-big-arrow" onclick="cmPrev()" ${total<=1?'disabled':''}>‹</button>
           <div class="cm-district-building">
-            <img src="${b.img}" class="cm-district-building-img"
-              onerror="this.style.opacity='0.15'" alt="${b.name}"/>
+            ${b.img ? `<img src="${b.img}" class="cm-district-building-img"
+              onerror="this.outerHTML='<div class=cm-building-placeholder>🏗️<span>Coming Soon</span></div>'"
+              alt="${b.name}"/>` : `<div class="cm-building-placeholder">🏗️<span>Coming Soon</span></div>`}
             <div class="cm-district-building-name">${b.name}</div>
             <div class="cm-district-building-desc">${b.desc}</div>
             <div class="cm-district-dots">
