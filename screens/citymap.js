@@ -117,46 +117,75 @@ function cmRender() {
 
 // ── MAP ────────────────────────────────────────────────────────
 function cmRenderMap(el) {
-  // Convert poly strings to clipPath objectBoundingBox format (0-1 scale)
+  // Build clip paths AND feather masks in defs
   const defs = CM_DISTRICTS.map(d => {
-    const pts = d.poly.split(' ').map(pt => {
+    const pctPts = d.poly.split(' ').map(pt => {
       const [x,y] = pt.split(',');
       return `${(parseFloat(x)/100).toFixed(4)},${(parseFloat(y)/100).toFixed(4)}`;
     }).join(' ');
-    return `<clipPath id="clip-${d.id}" clipPathUnits="objectBoundingBox">
-      <polygon points="${pts}"/>
-    </clipPath>`;
+    return `
+      <!-- Hard clip for the image -->
+      <clipPath id="clip-${d.id}" clipPathUnits="objectBoundingBox">
+        <polygon points="${pctPts}"/>
+      </clipPath>
+      <!-- Feather mask: polygon filled white with a blur filter = soft edges -->
+      <mask id="mask-${d.id}" maskUnits="objectBoundingBox" x="-5%" y="-5%" width="110%" height="110%">
+        <polygon points="${pctPts}" fill="white" filter="url(#feather)"/>
+      </mask>`;
   }).join('');
 
   el.innerHTML = `
     <div class="cm-map-root">
-      <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>${defs}</defs></svg>
+      <svg style="position:absolute;width:0;height:0;overflow:hidden;">
+        <defs>
+          <!-- Feather blur filter — softens polygon edges -->
+          <filter id="feather" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="0.015"/>
+          </filter>
+          ${defs}
+        </defs>
+      </svg>
 
-      <!-- Dimmed base map — always underneath -->
+      <!-- Base map — dimmed, always underneath -->
       <img src="assets/map/map_full_capital_heights.png" class="cm-base-map" draggable="false"/>
 
-      <!-- Clipped district layers — each is a full map image cropped to its polygon -->
-      <!-- These lift individually on hover -->
+      <!-- District layers: feathered soft-edge clip -->
       ${CM_DISTRICTS.map(d => `
         <div class="cm-district-layer" id="layer-${d.id}">
-          <img src="assets/map/map_full_capital_heights.png"
-            class="cm-layer-img"
-            style="clip-path:url(#clip-${d.id});"
-            draggable="false"/>
+          <div class="cm-layer-inner" style="-webkit-mask:url(#mask-${d.id});mask:url(#mask-${d.id});">
+            <img src="assets/map/map_full_capital_heights.png"
+              class="cm-layer-img"
+              style="clip-path:url(#clip-${d.id});"
+              draggable="false"/>
+          </div>
         </div>`).join('')}
 
-      <!-- Single SVG on top handles ALL mouse events precisely per polygon -->
+      <!-- Event SVG: transparent polygons for precise hover, plus glow border on hover -->
       <svg class="cm-event-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
         onmouseleave="cmUnhover()">
+        <defs>
+          <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="0.4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
         ${CM_DISTRICTS.map(d => `
-          <polygon
+          <!-- Hit zone -->
+          <polygon id="hit-${d.id}"
             points="${d.poly}"
-            fill="transparent"
-            stroke="transparent"
-            stroke-width="0.5"
+            fill="transparent" stroke="transparent" stroke-width="1"
             style="cursor:pointer;"
             onmouseenter="cmHover('${d.id}')"
-            onclick="cmEnterDistrict('${d.id}')"/>`).join('')}
+            onclick="cmEnterDistrict('${d.id}')"/>
+          <!-- Glow border — visible only on hover -->
+          <polygon id="glow-${d.id}"
+            class="cm-glow-polygon"
+            points="${d.poly}"
+            fill="none"
+            stroke="${d.color}"
+            stroke-width="0.6"
+            filter="url(#glow-filter)"
+            opacity="0"/>`).join('')}
       </svg>
 
       <!-- District name bar -->
@@ -171,13 +200,16 @@ window.cmHover = function(id) {
   const d = CM_DISTRICTS.find(d => d.id === id);
   CM_DISTRICTS.forEach(other => {
     const layer = document.getElementById(`layer-${other.id}`);
+    const glow  = document.getElementById(`glow-${other.id}`);
     if (!layer) return;
     if (other.id === id) {
       layer.classList.add('lifted');
       layer.classList.remove('dimmed');
+      if (glow) { glow.style.opacity = '0.85'; glow.style.stroke = d.color; }
     } else {
       layer.classList.remove('lifted');
       layer.classList.add('dimmed');
+      if (glow) glow.style.opacity = '0';
     }
   });
   const bar = document.getElementById('cm-name-bar');
@@ -192,7 +224,9 @@ window.cmHover = function(id) {
 window.cmUnhover = function() {
   CM_DISTRICTS.forEach(d => {
     const layer = document.getElementById(`layer-${d.id}`);
+    const glow  = document.getElementById(`glow-${d.id}`);
     if (layer) { layer.classList.remove('lifted'); layer.classList.remove('dimmed'); }
+    if (glow) glow.style.opacity = '0';
   });
   const bar = document.getElementById('cm-name-bar');
   if (bar) bar.classList.remove('visible');

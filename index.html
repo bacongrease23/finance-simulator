@@ -52,6 +52,17 @@
     }
     document.addEventListener('fullscreenchange', updateFsBtn);
     document.addEventListener('webkitfullscreenchange', updateFsBtn);
+
+    // ESC exits fullscreen explicitly
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        if (isFs) {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      }
+    }, true); // capture phase so it runs before anything else
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
