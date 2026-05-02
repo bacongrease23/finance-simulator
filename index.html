@@ -2,30 +2,48 @@
 <html lang="en">
 <head>
   <script>
-    // Fullscreen — fires before anything else loads
-    (function() {
-      function tryFS() {
+    // Fullscreen gate — browser requires a user gesture. We show a click-to-start
+    // overlay that immediately triggers fullscreen when clicked.
+    document.addEventListener('DOMContentLoaded', function() {
+      // If already fullscreen (e.g. F11 pressed), skip the gate
+      if (document.fullscreenElement || document.webkitFullscreenElement) return;
+
+      var gate = document.createElement('div');
+      gate.id = 'fs-gate';
+      gate.innerHTML = '<div class="fs-gate-inner"><div class="fs-gate-logo">CAPITAL HEIGHTS</div><div class="fs-gate-prompt">Click anywhere to begin</div></div>';
+      gate.style.cssText = [
+        'position:fixed','inset:0','z-index:99999',
+        'background:#1a1208',
+        'display:flex','align-items:center','justify-content:center',
+        'cursor:pointer','font-family:serif'
+      ].join(';');
+      document.body.appendChild(gate);
+
+      function launch() {
         var el = document.documentElement;
-        try {
-          if (el.requestFullscreen) { el.requestFullscreen(); return; }
-          if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); return; }
-          if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); return; }
-        } catch(e) {}
+        var p = el.requestFullscreen
+          ? el.requestFullscreen()
+          : el.webkitRequestFullscreen
+          ? (el.webkitRequestFullscreen(), Promise.resolve())
+          : Promise.resolve();
+        p.catch(function(){});
+        gate.style.transition = 'opacity 0.4s';
+        gate.style.opacity = '0';
+        setTimeout(function() { gate.remove(); }, 420);
       }
-      // Browsers block fullscreen without user gesture.
-      // We listen for ANY interaction and immediately go fullscreen.
-      var done = false;
-      function go() {
-        if (done) return; done = true;
-        tryFS();
-      }
-      // Wire every possible first-interaction event
-      ['click','keydown','keypress','touchstart','mousedown','pointerdown'].forEach(function(ev) {
-        document.addEventListener(ev, go, { once: true, capture: true });
-      });
-      // Also try on DOMContentLoaded (works if browser allows without gesture)
-      document.addEventListener('DOMContentLoaded', tryFS);
-    })();
+      gate.addEventListener('click', launch);
+      gate.addEventListener('keydown', launch);
+    });
+
+    // Show/hide exit button
+    function updateFsBtn() {
+      var btn = document.getElementById('fs-exit-btn');
+      if (!btn) return;
+      var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      btn.style.display = isFs ? 'flex' : 'none';
+    }
+    document.addEventListener('fullscreenchange', updateFsBtn);
+    document.addEventListener('webkitfullscreenchange', updateFsBtn);
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -253,7 +271,7 @@
     // ── Admin login ───────────────────────────────
     window.adminForceResetPassword = async function() {
       try {
-        await FirestoreDB.setAdminConfig({ adminPassword: 'password' });
+        await FirestoreDB.setAdminConfig({ adminPassword: 'password', customPasswordSet: false });
         alert('Password reset to: password');
       } catch(e) { alert('Error: ' + e.message); }
     };
@@ -262,19 +280,25 @@
       const passEl = document.getElementById('input-admin-pass');
       const pass = passEl.value.trim();
       const err  = document.getElementById('admin-login-error');
-      // Check Firebase first, fall back to hardcoded default
+      passEl.value = '';
+
+      // ALWAYS start with 'password' as the baseline
+      // Only override if a custom password has been explicitly saved via the change panel
       let correctPass = 'password';
       try {
         const cfg = await FirestoreDB.getAdminConfig();
-        if (cfg && cfg.adminPassword) correctPass = cfg.adminPassword;
+        // Only use stored password if it exists AND is not empty AND was intentionally set
+        if (cfg && cfg.adminPassword && cfg.customPasswordSet === true) {
+          correctPass = cfg.adminPassword;
+        }
       } catch(e) {}
-      passEl.value = '';
+
       if (pass === correctPass) {
         err.style.display = "none";
         showScreen('screen-admin');
         loadAdminData();
       } else {
-        err.textContent = "Incorrect password.";
+        err.textContent = "Incorrect password. Default is: password";
         err.style.display = "block";
       }
     };
@@ -364,10 +388,9 @@
         return;
       }
       try {
-        await FirestoreDB.setAdminConfig({ adminPassword: newPass });
-        ADMIN_PASSWORD = newPass;
+        await FirestoreDB.setAdminConfig({ adminPassword: newPass, customPasswordSet: true });
         document.getElementById('admin-new-password').value = '';
-        status.textContent = 'Password updated successfully.';
+        status.textContent = 'Password updated to: ' + newPass;
       } catch(e) {
         status.textContent = 'Error: ' + e.message;
       }

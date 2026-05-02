@@ -1058,3 +1058,29 @@ tr:hover td { background: var(--parch); }
   text-transform: uppercase;
   color: var(--ink-faint);
 }
+
+/* ── Fullscreen gate ── */
+.fs-gate-inner {
+  text-align: center;
+}
+.fs-gate-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 10px;
+  color: #C8920A;
+  text-shadow: 0 0 40px rgba(200,146,10,0.4);
+  margin-bottom: 24px;
+}
+.fs-gate-prompt {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  animation: pulse-prompt 2s ease-in-out infinite;
+}
+@keyframes pulse-prompt {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}

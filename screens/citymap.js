@@ -15,10 +15,10 @@ const CM_DISTRICTS = [
     buildings: [
       { id:'medical', name:'Capital Heights Medical Center', desc:'Visit the hospital or apply for health jobs',  img:'assets/exteriors/capital_heights_medical_center.png', screen:'screen-location', location:'medical' },
       { id:'coffee',  name:'Morning Ledger Coffee',          desc:'Grab a coffee and check your to-do list',      img:'assets/exteriors/morning_ledger_coffee.png',           screen:'screen-location', location:'coffee'  },
-      { id:'gym',     name:'Iron District Gym',              desc:'Stay healthy or apply for fitness jobs',        img:'assets/exteriors/iron_district_gym.png',               screen:'screen-location', location:'gym'     },
-      { id:'metro',   name:'Metro Market',                   desc:'Purchase groceries for the week',              img:'assets/exteriors/metro_market.png',                    screen:'screen-grocery',  location:'grocery' },
       { id:'bakery',  name:'Heights Bakery',                 desc:'Pick up a meal or a snack',                    img:'assets/exteriors/heights_bakery.png',                  screen:'screen-location', location:'bakery'  },
       { id:'office',  name:'Commons Office Building',        desc:'Apply for professional office jobs',            img:'assets/exteriors/commons_office_building.png',         screen:'screen-jobboard', location:'office'  },
+      { id:'gym',     name:'Iron District Gym',              desc:'Stay healthy or apply for fitness jobs',        img:'assets/exteriors/iron_district_gym.png',               screen:'screen-location', location:'gym'     },
+      { id:'metro',   name:'Metro Market',                   desc:'Purchase groceries for the week',              img:'assets/exteriors/metro_market.png',                    screen:'screen-grocery',  location:'grocery' },
     ]
   },
   {
