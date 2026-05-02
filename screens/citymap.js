@@ -1,6 +1,5 @@
 // ============================================================
 // CAPITAL HEIGHTS — citymap.js
-// Fullscreen map → click district → fade → district view
 // ============================================================
 
 const CM_DISTRICTS = [
@@ -81,10 +80,8 @@ const CM_DISTRICTS = [
   },
 ];
 
-// ── State ─────────────────────────────────────────────────────
 let cm = { player:null, view:'map', activeDistrict:null, carouselIdx:0 };
 
-// ── Init ──────────────────────────────────────────────────────
 window.initCityMap = function(player) {
   cm.player = player;
   cm.view = 'map';
@@ -96,127 +93,108 @@ window.initCityMap = function(player) {
 function cmRender() {
   const el = document.getElementById('screen-citymap');
   if (!el) return;
-  if (cm.view === 'map')     cmRenderMap(el);
-  else if (cm.view === 'district') cmRenderDistrict(el);
+  if (cm.view === 'map') cmRenderMap(el);
+  else cmRenderDistrict(el);
 }
 
-// ── Map view ──────────────────────────────────────────────────
+// ── MAP — fullscreen, no chrome ───────────────────────────────
 function cmRenderMap(el) {
   el.innerHTML = `
-    <div class="cm-wrap">
-      ${cmTopBar(false)}
-      <div class="cm-map-full">
-        <img src="assets/map/map_full_capital_heights.png" class="cm-map-img-full"/>
-        <svg class="cm-overlay-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          ${CM_DISTRICTS.map(d => `
+    <div class="cm-map-full">
+      <img src="assets/map/map_full_capital_heights.png" class="cm-map-img-full"/>
+      <svg class="cm-overlay-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        ${CM_DISTRICTS.map(d => {
+          const cx = d.poly.reduce((s,p)=>s+p.x,0)/d.poly.length;
+          const cy = d.poly.reduce((s,p)=>s+p.y,0)/d.poly.length;
+          return `
             <polygon
               points="${d.poly.map(p=>`${p.x},${p.y}`).join(' ')}"
-              fill="${d.color}"
-              fill-opacity="0.08"
-              stroke="${d.color}"
-              stroke-width="0.4"
-              stroke-opacity="0.6"
-              class="cm-zone"
-              onclick="cmEnterDistrict('${d.id}')"
-            />
-            <text
-              x="${d.poly.reduce((s,p)=>s+p.x,0)/d.poly.length}"
-              y="${d.poly.reduce((s,p)=>s+p.y,0)/d.poly.length}"
+              fill="${d.color}" fill-opacity="0.08"
+              stroke="${d.color}" stroke-width="0.5" stroke-opacity="0.7"
+              class="cm-zone" onclick="cmEnterDistrict('${d.id}')"/>
+            <text x="${cx}" y="${cy}"
               text-anchor="middle" dominant-baseline="middle"
-              fill="white"
-              font-size="3"
-              font-weight="700"
-              font-family="'Cinzel', serif"
-              pointer-events="none"
-              style="text-shadow:0 1px 3px rgba(0,0,0,0.8);filter:drop-shadow(0 1px 2px rgba(0,0,0,0.9));"
-              paint-order="stroke"
-              stroke="rgba(0,0,0,0.6)"
-              stroke-width="0.6"
-            >${d.name}</text>
-          `).join('')}
-        </svg>
-      </div>
+              font-size="3.5" font-weight="700"
+              font-family="Cinzel, serif"
+              fill="${d.color}"
+              stroke="#2A1F0E" stroke-width="0.8" paint-order="stroke"
+              pointer-events="none">${d.name}</text>`;
+        }).join('')}
+      </svg>
     </div>`;
 }
 
-// ── Enter district with fade ──────────────────────────────────
+// ── ENTER DISTRICT — fade ─────────────────────────────────────
 window.cmEnterDistrict = function(id) {
   cm.activeDistrict = CM_DISTRICTS.find(d => d.id === id);
   cm.carouselIdx = 0;
-  cm.view = 'district'; // set BEFORE render
+  cm.view = 'district';
 
-  const fadeEl = document.createElement('div');
-  fadeEl.style.cssText = 'position:fixed;inset:0;background:#2A1F0E;opacity:0;z-index:9990;transition:opacity 0.5s ease;pointer-events:all;';
-  document.body.appendChild(fadeEl);
-
+  const fade = document.createElement('div');
+  fade.style.cssText = 'position:fixed;inset:0;background:#2A1F0E;opacity:0;z-index:9990;transition:opacity 0.45s ease;pointer-events:all;';
+  document.body.appendChild(fade);
   requestAnimationFrame(() => {
-    fadeEl.style.opacity = '1';
+    fade.style.opacity = '1';
     setTimeout(() => {
-      cmRender(); // now renders district view
+      cmRender();
       requestAnimationFrame(() => {
-        fadeEl.style.opacity = '0';
-        setTimeout(() => fadeEl.remove(), 500);
+        fade.style.opacity = '0';
+        setTimeout(() => fade.remove(), 450);
       });
-    }, 500);
+    }, 450);
   });
 };
 
-// ── District view ─────────────────────────────────────────────
+// ── DISTRICT — fullscreen, big carousel ───────────────────────
 function cmRenderDistrict(el) {
   const d = cm.activeDistrict;
   const b = d.buildings[cm.carouselIdx];
   const total = d.buildings.length;
-  cm.view = 'district';
 
   el.innerHTML = `
     <div class="cm-district-wrap" style="background-image:url('${d.bg}');">
       <div class="cm-district-overlay"></div>
-      ${cmTopBar(true)}
-      <div class="cm-district-content">
-        <div class="cm-district-header frost-panel">
-          <h2 class="cm-district-title">${d.name}</h2>
-          <button class="cm-district-back" onclick="cmBackToMap()">← Back to Map</button>
-        </div>
-        <div class="cm-district-carousel frost-panel">
+      <div class="cm-district-ui">
+        <div class="cm-district-carousel">
           <button class="cm-big-arrow" onclick="cmPrev()" ${total<=1?'disabled':''}>‹</button>
           <div class="cm-district-building">
             <img src="${b.img}" class="cm-district-building-img"
-              onerror="this.style.opacity='0.15'"
-              alt="${b.name}"/>
+              onerror="this.style.opacity='0.15'" alt="${b.name}"/>
             <div class="cm-district-building-name">${b.name}</div>
             <div class="cm-district-building-desc">${b.desc}</div>
             <div class="cm-district-dots">
               ${d.buildings.map((_,i)=>`<span class="cm-dot ${i===cm.carouselIdx?'active':''}"></span>`).join('')}
             </div>
-            <button class="cm-district-enter-btn" onclick="cmEnterBuilding()">
-              Enter ${b.name} →
-            </button>
+            <button class="cm-district-enter-btn" onclick="cmEnterBuilding()">ENTER</button>
           </div>
           <button class="cm-big-arrow" onclick="cmNext()" ${total<=1?'disabled':''}>›</button>
         </div>
+        <button class="cm-back-map" onclick="cmBackToMap()">← Back to Map</button>
       </div>
     </div>`;
 }
 
-// ── Back to map with fade ─────────────────────────────────────
+// ── BACK TO MAP — fade ────────────────────────────────────────
 window.cmBackToMap = function() {
-  const fadeEl = document.createElement('div');
-  fadeEl.style.cssText = 'position:fixed;inset:0;background:#2A1F0E;opacity:0;z-index:9990;transition:opacity 0.4s ease;pointer-events:none;';
-  document.body.appendChild(fadeEl);
+  const fade = document.createElement('div');
+  fade.style.cssText = 'position:fixed;inset:0;background:#2A1F0E;opacity:0;z-index:9990;transition:opacity 0.4s ease;pointer-events:all;';
+  document.body.appendChild(fade);
   requestAnimationFrame(() => {
-    fadeEl.style.opacity = '1';
+    fade.style.opacity = '1';
     setTimeout(() => {
       cm.view = 'map';
       cm.activeDistrict = null;
       cmRender();
-      fadeEl.style.opacity = '0';
-      setTimeout(() => fadeEl.remove(), 400);
+      requestAnimationFrame(() => {
+        fade.style.opacity = '0';
+        setTimeout(() => fade.remove(), 400);
+      });
     }, 400);
   });
 };
 
-window.cmPrev = function() { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx-1+n)%n; cmRender(); };
-window.cmNext = function() { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx+1)%n; cmRender(); };
+window.cmPrev = () => { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx-1+n)%n; cmRender(); };
+window.cmNext = () => { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx+1)%n; cmRender(); };
 
 window.cmEnterBuilding = function() {
   const b = cm.activeDistrict.buildings[cm.carouselIdx];
@@ -224,27 +202,11 @@ window.cmEnterBuilding = function() {
   window.GameState.currentBuilding = b;
   showScreen(b.screen);
   const inits = {
-    'screen-banking': window.initBanking,
-    'screen-grocery': window.initGrocery,
-    'screen-housing': window.initHousing,
+    'screen-banking':  window.initBanking,
+    'screen-grocery':  window.initGrocery,
+    'screen-housing':  window.initHousing,
     'screen-jobboard': window.initJobBoard,
     'screen-location': window.initLocation,
   };
   if (inits[b.screen]) inits[b.screen](cm.player, b);
 };
-
-// ── Top bar ───────────────────────────────────────────────────
-function cmTopBar(inDistrict) {
-  const p = cm.player;
-  return `<div class="cm-topbar ${inDistrict?'cm-topbar-district':''}">
-    <div class="cm-topbar-left">
-      <span class="cm-city-name">Capital Heights</span>
-      ${inDistrict&&cm.activeDistrict?`<span class="cm-district-name">→ ${cm.activeDistrict.name}</span>`:''}
-    </div>
-    <div class="cm-topbar-right">
-      <span class="cm-stat">💰 $${Number(p?.checkingBalance||0).toFixed(2)}</span>
-      <span class="cm-stat">📅 Day ${p?.currentDay||1}</span>
-      <button class="cm-logout" onclick="handleLogout()">Log Out</button>
-    </div>
-  </div>`;
-}
