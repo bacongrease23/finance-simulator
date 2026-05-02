@@ -8,7 +8,7 @@ const CM_DISTRICTS = [
     id:'commons', name:'The Commons', color:'#4A8AC8',
     bg:'assets/districts/commons_bg.png',
     // SVG polygon as % of viewBox 0 0 100 100
-    poly:'0,0 50,0 50,28 42,52 0,52',
+    poly:'49.7,21.3 46.2,38.1 18.5,38.3 18.4,52 0,52.2 0,0 49.7,0',
     buildings:[
       {id:'medical', name:'Capital Heights Medical Center', desc:'Visit the hospital or apply for health jobs',  img:'assets/exteriors/capital_heights_medical_center.png', screen:'screen-location', location:'medical'},
       {id:'coffee',  name:'Morning Ledger Coffee',          desc:'Grab a coffee and check your to-do list',      img:'assets/exteriors/morning_ledger_coffee.png',           screen:'screen-location', location:'coffee'},
@@ -21,7 +21,7 @@ const CM_DISTRICTS = [
   {
     id:'oldtown', name:'Old Town', color:'#A84AC8',
     bg:'assets/districts/oldtown_bg.png',
-    poly:'0,52 42,52 32,72 20,100 0,100',
+    poly:'19,36.6 45.9,36.4 45.9,56 45.3,62.2 42.4,66.6 36,72.8 32,82.9 22.3,73.5 20.4,70.4 19.3,66.8 18.8,59.9',
     buildings:[
       {id:'grill',   name:'Capitol Grill',        desc:'Dine in or apply for restaurant jobs',   img:'assets/exteriors/capitol_grill.png',        screen:'screen-location', location:'grill'},
       {id:'bistro',  name:'Le Bistro Capital',    desc:'Upscale dining and hospitality jobs',     img:'assets/exteriors/le_bistro_capital.png',    screen:'screen-location', location:'bistro'},
@@ -33,7 +33,7 @@ const CM_DISTRICTS = [
   {
     id:'crestwood', name:'Crestwood', color:'#C8784A',
     bg:'assets/districts/crestwood_bg.png',
-    poly:'0,100 20,100 20,72 0,72',
+    poly:'30.3,100 31.9,83.4 22.1,74.4 20.4,71.3 18.5,64.9 18.6,53.5 0,53.7 0,100 17,100',
     buildings:[
       {id:'realty', name:'Crestwood Realty',       desc:'Browse homes for sale in Crestwood',   img:'assets/exteriors/crestwood_realty.png',       screen:'screen-housing',  location:'realty'},
       {id:'club',   name:'Crestwood Country Club',  desc:'Apply for event and hospitality jobs', img:'assets/exteriors/crestwood_country_club.png', screen:'screen-jobboard', location:'club'},
@@ -42,7 +42,7 @@ const CM_DISTRICTS = [
   {
     id:'financial', name:'The Financial District', color:'#C8A84A',
     bg:'assets/districts/financial_bg.png',
-    poly:'50,0 72,0 72,28 80,55 72,65 42,52 50,28',
+    poly:'70,0 75.9,0 76.2,72.6 52.4,72.7 52.8,55.7 52.8,23.6 55.6,15.8 59.7,9.9 66.6,5.3',
     buildings:[
       {id:'capital', name:'Capital Tower',            desc:'Apply for finance and business jobs',    img:'assets/exteriors/capital_tower.png',            screen:'screen-jobboard', location:'capital'},
       {id:'global',  name:'Global Equity Tower',      desc:'Apply for economics and investment jobs', img:'assets/exteriors/global_equity_tower.png',     screen:'screen-jobboard', location:'global'},
@@ -53,7 +53,7 @@ const CM_DISTRICTS = [
   {
     id:'capitol', name:'Capitol Square', color:'#4AC87A',
     bg:'assets/districts/capitol_bg.png',
-    poly:'32,72 42,52 72,65 80,55 80,100 20,100',
+    poly:'41.9,79 47.3,73.2 75.7,72.8 75.7,100 37.2,100 37.7,89.6',
     buildings:[
       {id:'fountain', name:'Central Fountain Plaza',        desc:'The heart of Capital Heights',       img:'assets/exteriors/central_fountain_plaza.png',        screen:'screen-location', location:'plaza'},
       {id:'dmv',      name:'DMV',                          desc:'Register your vehicle or update ID', img:'assets/exteriors/dmv.png',                           screen:'screen-location', location:'dmv'},
@@ -63,7 +63,7 @@ const CM_DISTRICTS = [
   {
     id:'eastbrook', name:'Eastbrook', color:'#C84A4A',
     bg:'assets/districts/eastbrook_bg.png',
-    poly:'80,55 100,45 100,100 80,100',
+    poly:'76.2,54.9 99.9,55 100,100 76.3,100',
     buildings:[
       {id:'meridian',  name:'Meridian Heights', desc:'Upscale apartments available to rent',   img:'assets/exteriors/meridian_heights.png', screen:'screen-housing', location:'meridian'},
       {id:'fairfax',   name:'Fairfax Commons',  desc:'Mid-range apartments available to rent', img:'assets/exteriors/fairfax_commons.png',  screen:'screen-housing', location:'fairfax'},
@@ -73,7 +73,7 @@ const CM_DISTRICTS = [
   {
     id:'riverside', name:'Riverside', color:'#4AC8C8',
     bg:'assets/districts/riverside_bg.png',
-    poly:'72,0 100,0 100,45 80,55 72,28',
+    poly:'76.2,0 100,0 99.9,25.3 99.9,54.3 76.4,53.8',
     buildings:[
       {id:'nova',       name:'Nova Park Residences', desc:'Modern apartments along the river', img:'assets/exteriors/nova_park_residences.png', screen:'screen-housing', location:'nova'},
       {id:'centennial', name:'Centennial Court',     desc:'Comfortable apartments to rent',    img:'assets/exteriors/centennial_court.png',     screen:'screen-housing', location:'centennial'},
