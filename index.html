@@ -198,20 +198,25 @@
 
     // ── Fullscreen ────────────────────────────────
     (function() {
-      // Request fullscreen on load
       function requestFS() {
         const el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-        else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+        try {
+          if (el.requestFullscreen) el.requestFullscreen();
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+          else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+        } catch(e) {}
       }
-      // Try on first user interaction if autoplay blocked
-      document.addEventListener('click', function onFirstClick() {
+
+      // Try immediately on page load (works in some browsers)
+      requestFS();
+
+      // Also trigger on the very first interaction of any kind
+      const events = ['click','keydown','touchstart','mousedown'];
+      function onFirstInteraction() {
         requestFS();
-        document.removeEventListener('click', onFirstClick);
-      }, { once: true });
-      // Also try immediately
-      try { requestFS(); } catch(e) {}
+        events.forEach(ev => document.removeEventListener(ev, onFirstInteraction));
+      }
+      events.forEach(ev => document.addEventListener(ev, onFirstInteraction, { once: false }));
 
       // Show/hide exit button based on fullscreen state
       function updateFsBtn() {
@@ -222,11 +227,26 @@
       }
       document.addEventListener('fullscreenchange', updateFsBtn);
       document.addEventListener('webkitfullscreenchange', updateFsBtn);
+
+      // ESC key exits fullscreen (browser handles this natively,
+      // but we also wire it manually in case it's suppressed)
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' || e.key === 'F11') {
+          const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+          if (e.key === 'F11') {
+            e.preventDefault();
+            isFs ? window.exitFullscreen() : requestFS();
+          }
+          // ESC is handled natively by the browser to exit fullscreen
+        }
+      });
     })();
 
     window.exitFullscreen = function() {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      try {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      } catch(e) {}
     };
 
     // ── Logout ────────────────────────────────────

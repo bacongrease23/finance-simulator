@@ -881,12 +881,11 @@ tr:hover td { background: var(--parch); }
 /* ── Splash screen ── */
 .lg-splash {
   width: 100vw; height: 100vh;
-  background: var(--ink);
+  background: #2A1F0E;
   display: flex; align-items: center; justify-content: center;
-  transition: opacity 0.6s ease;
+  opacity: 0;
 }
-.lg-splash.fade-out { opacity: 0; }
 .lg-splash-img {
   width: 100%; height: 100%;
-  object-fit: cover;
+  object-fit: cover; display: block;
 }

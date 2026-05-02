@@ -84,18 +84,29 @@ function lgRender() {
 
 // ── LANDING ───────────────────────────────────────────────────
 function lgRenderLanding(el) {
-  // Show splash image for 4 seconds, then fade to main landing
+  // Start fully dark, fade in splash over 1s, hold 4s, fade out to menu
   el.innerHTML = `
     <div class="lg-splash" id="lg-splash">
       <img src="assets/capital_heights_landing_page.png" class="lg-splash-img"/>
     </div>`;
 
+  // Fade in from dark (starts at opacity 0, transitions to 1)
+  const splash = document.getElementById('lg-splash');
+  splash.style.opacity = '0';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      splash.style.transition = 'opacity 1s ease';
+      splash.style.opacity = '1';
+    });
+  });
+
+  // After 4s hold, fade out then show menu
   setTimeout(() => {
-    const splash = document.getElementById('lg-splash');
-    if (splash) splash.classList.add('fade-out');
+    splash.style.transition = 'opacity 0.7s ease';
+    splash.style.opacity = '0';
     setTimeout(() => {
       el.innerHTML = `
-        <div class="lg-landing">
+        <div class="lg-landing" style="opacity:0;transition:opacity 0.6s ease;" id="lg-main-landing">
           <div class="lg-landing-inner">
             <h1 class="lg-title">CAPITAL<br>HEIGHTS</h1>
             <p class="lg-subtitle">Financial Literacy Simulator</p>
@@ -110,8 +121,15 @@ function lgRenderLanding(el) {
             <button class="lg-admin-link" onclick="showScreen('screen-admin-login')">Admin</button>
           </div>
         </div>`;
-    }, 600);
-  }, 4000);
+      // Fade in the menu
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const landing = document.getElementById('lg-main-landing');
+          if (landing) landing.style.opacity = '1';
+        });
+      });
+    }, 700);
+  }, 5000); // 1s fade in + 4s hold
 }
 
 window.lgStartNew = async function() {
