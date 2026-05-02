@@ -265,7 +265,7 @@ window.lgNewPinKey = function(key) {
   }
 };
 
-function lgNewPinConfirmed() {
+window.lgNewPinConfirmed = function() {
   if (lg.pin !== lg.pinConfirm) {
     lg.pinStep = 'enter';
     lg.pin = '';
@@ -466,7 +466,7 @@ window.lgRetPinKey = async function(key) {
   }
 };
 
-async function lgRetVerifyPin() {
+window.lgRetVerifyPin = async function() {
   const existing = lg.claimedMap[lg.selectedChar.id];
   if (!existing) {
     lg.pin = '';
@@ -504,6 +504,29 @@ async function lgRetVerifyPin() {
     if (err) { err.textContent = 'Connection error: ' + e.message; err.style.display = 'block'; }
   }
 }
+
+// ── Keyboard support for all PIN screens ──────────────────────
+document.addEventListener('keydown', function(e) {
+  const el = document.getElementById('screen-login');
+  if (!el || !el.classList.contains('active')) return;
+
+  // Number keys and numpad
+  if ((e.key >= '0' && e.key <= '9') || (e.code && e.code.startsWith('Numpad') && e.key >= '0' && e.key <= '9')) {
+    // Find which step we're on and call the right handler
+    if (lg.step === 'new-pin')    window.lgNewPinKey(e.key);
+    else if (lg.step === 'ret-pin') window.lgRetPinKey(e.key);
+  }
+  // Backspace
+  else if (e.key === 'Backspace') {
+    if (lg.step === 'new-pin')    window.lgNewPinKey('⌫');
+    else if (lg.step === 'ret-pin') window.lgRetPinKey('⌫');
+  }
+  // Enter — submit if 4 digits entered
+  else if (e.key === 'Enter') {
+    if (lg.step === 'new-pin' && lg.pin.length === 4) lgNewPinConfirmed();
+    else if (lg.step === 'ret-pin' && lg.pin.length === 4) lgRetVerifyPin();
+  }
+});
 
 // ── Self-boot ─────────────────────────────────────────────────
 (function() {

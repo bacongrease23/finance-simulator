@@ -87,24 +87,40 @@ window.CM_DISTRICTS = CM_DISTRICTS;
 
 let cm = { player:null, view:'map', activeDistrict:null, carouselIdx:0 };
 
+// Load saved polygons from Firebase as soon as GameState is ready
+async function cmLoadSavedPolygons() {
+  try {
+    if (!window.GameState || !window.GameState.FirestoreDB) return;
+    const saved = await window.GameState.FirestoreDB.loadDistrictPolygons();
+    if (saved) {
+      let count = 0;
+      CM_DISTRICTS.forEach(d => {
+        if (saved[d.id]) { d.poly = saved[d.id]; count++; }
+      });
+      window.CM_DISTRICTS = CM_DISTRICTS;
+      console.log(`Loaded ${count} saved district polygons from Firebase`);
+    }
+  } catch(e) {
+    console.warn('Could not load district polygons:', e.message);
+  }
+}
+
+// Try loading on module init (may retry once GameState is ready)
+(function tryLoad() {
+  if (window.GameState && window.GameState.FirestoreDB) {
+    cmLoadSavedPolygons();
+  } else {
+    setTimeout(tryLoad, 200);
+  }
+})();
+
 window.initCityMap = async function(player) {
   cm.player = player;
   cm.view = 'map';
   cm.activeDistrict = null;
   cm.carouselIdx = 0;
-
-  // Load saved polygon coordinates from Firebase
-  // If found, override the hardcoded defaults
-  try {
-    const saved = await window.GameState.FirestoreDB.loadDistrictPolygons();
-    if (saved) {
-      CM_DISTRICTS.forEach(d => {
-        if (saved[d.id]) d.poly = saved[d.id];
-      });
-      window.CM_DISTRICTS = CM_DISTRICTS;
-    }
-  } catch(e) {}
-
+  // Reload polygons in case they changed since page load
+  await cmLoadSavedPolygons();
   cmRender();
 };
 

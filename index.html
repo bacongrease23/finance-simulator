@@ -113,7 +113,7 @@
           <button class="lg-numpad-btn" onclick="adminPinKey('⌫')">⌫</button>
         </div>
         <p id="admin-login-error" class="error-msg" style="display:none;text-align:center;margin-top:8px;"></p>
-        <button class="link-btn" style="margin-top:16px;" onclick="adminPinClear();showScreen('screen-login');if(window.initLogin)window.initLogin();">← Back</button>
+        <button class="link-btn" style="margin-top:16px;" onclick="adminBack()">← Back</button>
       </div>
     </div>
   </div>
@@ -123,7 +123,7 @@
     <div class="admin-wrap">
       <div class="admin-header">
         <h1>Admin Panel — Capital Heights</h1>
-        <button onclick="showScreen('screen-login')">Exit</button>
+        <button onclick="goBack()">← Back</button>
       </div>
       <div class="admin-card">
         <h2>First-Time Setup</h2>
@@ -203,7 +203,7 @@
       <button onclick="calSavePolygons()" style="background:#C8920A;border:none;border-radius:8px;color:white;font-weight:700;padding:10px 20px;cursor:pointer;">💾 Save to Game</button>
       <button onclick="calAddPoint()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#e8d8b0;padding:10px 16px;cursor:pointer;">+ Add Point</button>
       <button onclick="calRemovePoint()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#e05252;padding:10px 16px;cursor:pointer;">− Remove Last Point</button>
-      <button onclick="adminCloseCalibrator()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#888;padding:10px 16px;cursor:pointer;margin-left:auto;">✕ Close</button>
+      <span id="cal-save-status" style="color:#4AC87A;font-size:0.8rem;margin-left:8px;"></span><button onclick="adminCloseCalibrator()" style="background:#2a2218;border:1px solid #4a3a20;border-radius:8px;color:#888;padding:10px 16px;cursor:pointer;margin-left:auto;">✕ Close</button>
     </div>
   </div>
 
@@ -508,28 +508,37 @@
 
     window.calSavePolygons = async function() {
       const btn = document.querySelector('[onclick="calSavePolygons()"]');
+      const statusEl = document.getElementById('cal-save-status');
       if (btn) { btn.textContent = '⏳ Saving...'; btn.disabled = true; }
+      if (statusEl) statusEl.textContent = '';
 
-      // Build the polygons object
+      // Build the polygons object from current calPoints
       const polygons = {};
       window.CM_DISTRICTS.forEach(d => {
         const pts = calPoints[d.id];
-        if (pts) polygons[d.id] = pts.map(p => p.x + ',' + p.y).join(' ');
+        if (pts && pts.length > 0) {
+          polygons[d.id] = pts.map(p => p.x + ',' + p.y).join(' ');
+        }
       });
+
+      console.log('Saving polygons:', polygons);
 
       try {
         await FirestoreDB.saveDistrictPolygons(polygons);
 
-        // Also update live CM_DISTRICTS in memory so map reflects changes immediately
+        // Update live CM_DISTRICTS in memory
         window.CM_DISTRICTS.forEach(d => {
           if (polygons[d.id]) d.poly = polygons[d.id];
         });
 
-        if (btn) { btn.textContent = '✅ Saved!'; btn.disabled = false; }
-        setTimeout(() => { if (btn) btn.textContent = '💾 Save to Game'; }, 2000);
+        if (btn) { btn.textContent = '✅ Saved to Firebase!'; btn.disabled = false; }
+        if (statusEl) statusEl.textContent = 'Saved successfully at ' + new Date().toLocaleTimeString();
+        setTimeout(() => { if (btn) btn.textContent = '💾 Save to Game'; }, 3000);
       } catch(e) {
-        if (btn) { btn.textContent = '❌ Error — try again'; btn.disabled = false; }
-        console.error('Save failed:', e);
+        if (btn) { btn.textContent = '❌ Save Failed'; btn.disabled = false; }
+        if (statusEl) statusEl.textContent = 'Error: ' + e.message;
+        console.error('Save failed:', e.message, e);
+        alert('Save failed: ' + e.message);
       }
     };
 
@@ -571,6 +580,12 @@
       showScreen('screen-admin-login');
     };
 
+    // Override admin panel back to use goBack
+    window.adminBack = function() {
+      adminPinClear();
+      goBack();
+    };
+
     // Tilde (~) key toggles start menu
     document.addEventListener('keydown', function(e) {
       if (e.key === '~' || e.key === '`') {
@@ -606,12 +621,16 @@
     let adminPin = '';
     const ADMIN_PIN_LENGTH = 6;
 
-    // Keyboard support for admin PIN screen
+    // Keyboard support for admin PIN screen (numbers, numpad, backspace, enter)
     document.addEventListener('keydown', function(e) {
       const adminScreen = document.getElementById('screen-admin-login');
       if (!adminScreen || !adminScreen.classList.contains('active')) return;
-      if (e.key >= '0' && e.key <= '9') { adminPinKey(e.key); }
+      if ((e.key >= '0' && e.key <= '9') ||
+          (e.code && e.code.startsWith('Numpad') && e.key >= '0' && e.key <= '9')) {
+        adminPinKey(e.key);
+      }
       else if (e.key === 'Backspace' || e.key === 'Delete') { adminPinKey('⌫'); }
+      else if (e.key === 'Enter' && adminPin.length === ADMIN_PIN_LENGTH) { adminVerifyPin(); }
     });
 
     window.adminPinKey = async function(key) {
