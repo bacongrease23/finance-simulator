@@ -133,62 +133,54 @@ function cmRender() {
 
 // ── MAP ────────────────────────────────────────────────────────
 function cmRenderMap(el) {
-  // Build clip paths AND feather masks in defs
-  const defs = CM_DISTRICTS.map(d => {
+  // Build SVG clipPaths — one per district
+  // Using percentages so clip scales with the container
+  const clipDefs = CM_DISTRICTS.map(d => {
     const pctPts = d.poly.split(' ').map(pt => {
       const [x,y] = pt.split(',');
       return `${(parseFloat(x)/100).toFixed(4)},${(parseFloat(y)/100).toFixed(4)}`;
     }).join(' ');
-    return `
-      <!-- Hard clip for the image -->
-      <clipPath id="clip-${d.id}" clipPathUnits="objectBoundingBox">
-        <polygon points="${pctPts}"/>
-      </clipPath>
-      <!-- Feather mask: polygon filled white with a blur filter = soft edges -->
-      <mask id="mask-${d.id}" maskUnits="objectBoundingBox" x="-5%" y="-5%" width="110%" height="110%">
-        <polygon points="${pctPts}" fill="white" filter="url(#feather)"/>
-      </mask>`;
+    return `<clipPath id="clip-${d.id}" clipPathUnits="objectBoundingBox">
+      <polygon points="${pctPts}"/>
+    </clipPath>`;
   }).join('');
 
   el.innerHTML = `
     <div class="cm-map-root">
-      <svg style="position:absolute;width:0;height:0;overflow:hidden;">
-        <defs>
-          <!-- Feather blur filter — softens polygon edges -->
-          <filter id="feather" x="-10%" y="-10%" width="120%" height="120%">
-            <feGaussianBlur stdDeviation="0.015"/>
-          </filter>
-          ${defs}
-        </defs>
+
+      <!-- SVG defs for clip paths -->
+      <svg style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;">
+        <defs>${clipDefs}</defs>
       </svg>
 
-      <!-- Base map — pre-desaturated asset -->
+      <!-- Dull base map — always shows underneath -->
       <img src="assets/map/map_dull_capital_heights.png" class="cm-base-map" draggable="false"/>
 
-      <!-- District layers: feathered soft-edge clip -->
+      <!-- One layer per district: full-color map clipped to district shape.
+           Starts at opacity 0. On hover: opacity 1 + lift. -->
       ${CM_DISTRICTS.map(d => `
         <div class="cm-district-layer" id="layer-${d.id}">
-          <div class="cm-layer-inner" style="-webkit-mask:url(#mask-${d.id});mask:url(#mask-${d.id});">
-            <img src="assets/map/map_full_capital_heights.png"
-              class="cm-layer-img"
-              style="clip-path:url(#clip-${d.id});"
-              draggable="false"/>
-          </div>
+          <img src="assets/map/map_full_capital_heights.png"
+               class="cm-layer-img"
+               style="clip-path:url(#clip-${d.id});"
+               draggable="false"/>
         </div>`).join('')}
 
-      <!-- Event SVG: transparent polygons for precise hover detection only -->
+      <!-- Invisible SVG polygons on top — handle all mouse events precisely -->
       <svg class="cm-event-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
-        onmouseleave="cmUnhover()">
+           onmouseleave="cmUnhover()">
         ${CM_DISTRICTS.map(d => `
-          <polygon id="hit-${d.id}"
+          <polygon
             points="${d.poly}"
-            fill="transparent" stroke="transparent" stroke-width="1"
+            fill="transparent"
+            stroke="transparent"
+            stroke-width="1"
             style="cursor:pointer;"
             onmouseenter="cmHover('${d.id}')"
             onclick="cmEnterDistrict('${d.id}')"/>`).join('')}
       </svg>
 
-      <!-- District name bar -->
+      <!-- District name bar — bottom of screen -->
       <div class="cm-name-bar" id="cm-name-bar">
         <span id="cm-name-text"></span>
       </div>
@@ -197,13 +189,16 @@ function cmRenderMap(el) {
 
 // ── Hover ──────────────────────────────────────────────────────
 window.cmHover = function(id) {
+  console.log('cmHover called:', id);
   const d = CM_DISTRICTS.find(d => d.id === id);
   CM_DISTRICTS.forEach(other => {
     const layer = document.getElementById(`layer-${other.id}`);
+    console.log(`layer-${other.id}:`, layer ? 'found' : 'MISSING');
     if (!layer) return;
     if (other.id === id) {
       layer.classList.add('lifted');
       layer.classList.remove('dimmed');
+      console.log(`Added lifted to layer-${other.id}, classes:`, layer.className);
     } else {
       layer.classList.remove('lifted');
       layer.classList.add('dimmed');
