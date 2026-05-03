@@ -815,6 +815,7 @@ window.obGraduate = async gpa => {
   await window.GameState.FirestoreDB.updatePlayer(ob.player.uid,{graduationGPA:parseFloat(gpa),onboardingStep:'jobboard'});
   ob.player.onboardingStep='jobboard';
   window.GameState.player=ob.player;
-  showScreen('screen-citymap');
-  if(window.initCityMap) window.initCityMap(ob.player);
+  if(window.showForeverBtn) window.showForeverBtn();
+  showScreen('screen-home');
+  if(window.initHome) window.initHome(ob.player);
 };

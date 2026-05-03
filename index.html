@@ -73,6 +73,19 @@
 </head>
 <body>
 
+  <!-- Forever Player Management Button (shown after graduation) -->
+  <button id="forever-btn" onclick="openPlayerManagement()" title="Player Management"
+    style="display:none;position:fixed;bottom:24px;right:24px;z-index:8000;
+      width:56px;height:56px;border-radius:50%;
+      background:linear-gradient(135deg,#E8AA20,#C8920A);
+      border:2px solid rgba(255,220,120,0.4);
+      box-shadow:0 4px 20px rgba(200,146,10,0.4),0 2px 8px rgba(0,0,0,0.3);
+      cursor:pointer;font-size:1.4rem;
+      display:none;align-items:center;justify-content:center;
+      transition:all 0.2s;">
+    📋
+  </button>
+
   <!-- Fullscreen exit button -->
   <button id="fs-exit-btn" onclick="exitFullscreen()" title="Exit Fullscreen">✕</button>
 
@@ -282,6 +295,22 @@
     const navHistory = [];
     const noHistoryScreens = new Set(['screen-login','screen-admin-login']);
 
+    function showForeverBtn() {
+      const btn = document.getElementById('forever-btn');
+      if (btn) btn.style.display = 'flex';
+    }
+    function hideForeverBtn() {
+      const btn = document.getElementById('forever-btn');
+      if (btn) btn.style.display = 'none';
+    }
+    window.showForeverBtn = showForeverBtn;
+    window.hideForeverBtn = hideForeverBtn;
+
+    // Screens where forever button should be hidden
+    const foreverHiddenScreens = new Set([
+      'screen-login','screen-admin-login','screen-admin','screen-onboarding'
+    ]);
+
     window.showScreen = function(id, addToHistory = true) {
       const current = document.querySelector('.screen.active');
       const currentId = current ? current.id : null;
@@ -292,6 +321,12 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       const el = document.getElementById(id);
       if (el) el.classList.add('active');
+      // Show/hide forever button based on screen
+      if (window.GameState?.player?.onboardingStep && !['character','degree','finals',undefined,null].includes(window.GameState.player.onboardingStep)) {
+        foreverHiddenScreens.has(id) ? hideForeverBtn() : showForeverBtn();
+      } else {
+        hideForeverBtn();
+      }
     };
 
     window.goBack = function() {
@@ -604,6 +639,7 @@
 
     // ── Logout ────────────────────────────────────
     window.handleLogout = async function() {
+      hideForeverBtn();
       if (currentPlayer) {
         await FirestoreDB.advanceTime(currentPlayer.uid);
       }

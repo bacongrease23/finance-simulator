@@ -1168,3 +1168,153 @@ tr:hover td { background: var(--parch); }
   border-color: var(--gold);
   box-shadow: 0 0 8px rgba(200,146,10,0.4);
 }
+
+/* ============================================================
+   PLAYER MANAGEMENT — home.js
+   ============================================================ */
+
+.hm-wrap {
+  min-height: 100vh;
+  background: var(--parch);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px 120px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Header */
+.hm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1.5px solid var(--parch-dark);
+}
+.hm-identity { display: flex; align-items: center; gap: 20px; }
+.hm-avatar {
+  width: 80px; height: 100px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--parch-dark);
+  flex-shrink: 0;
+  background: var(--parch-dark);
+}
+.hm-avatar-img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.hm-avatar-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem; font-weight: 700; color: var(--ink-faint);
+}
+.hm-name { font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.hm-sub { font-size: 0.85rem; color: var(--ink-light); margin-bottom: 6px; }
+.hm-location { font-size: 0.9rem; color: var(--gold-dark); font-weight: 600; }
+.hm-date { text-align: right; }
+.hm-date-label { font-family: 'Cinzel', serif; font-size: 1.2rem; font-weight: 700; color: var(--ink); }
+.hm-date-sub { font-size: 0.85rem; color: var(--ink-light); }
+
+/* Grid */
+.hm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.hm-card {
+  background: var(--parch-light);
+  border: 1.5px solid var(--parch-dark);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.hm-card-wide {
+  grid-column: span 3;
+}
+.hm-card-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.hm-card-subtitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin: 14px 0 8px;
+}
+.hm-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--parch);
+}
+.hm-stat-row.total { border-bottom: none; padding-top: 10px; }
+.hm-stat-label { font-size: 0.88rem; color: var(--ink-mid); }
+.hm-stat-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.hm-stat-val.positive { color: var(--forest); }
+.hm-stat-val.negative { color: var(--brick); }
+.hm-stat-val.credit-good { color: var(--forest); }
+.hm-stat-val.credit-fair { color: var(--gold-dark); }
+.hm-stat-val.credit-poor { color: var(--brick); }
+.hm-divider { border-top: 1.5px solid var(--parch-dark); margin: 12px 0 8px; }
+.hm-job-name { font-size: 1rem; font-weight: 700; color: var(--ink); }
+.hm-job-employer { font-size: 0.82rem; color: var(--ink-light); margin-bottom: 4px; }
+.hm-empty-state {
+  font-size: 0.88rem;
+  color: var(--ink-faint);
+  text-align: center;
+  padding: 16px 8px;
+  line-height: 1.6;
+}
+.hm-empty-state.small { padding: 8px 4px; font-size: 0.82rem; }
+.hm-empty-sub { font-size: 0.8rem; color: var(--ink-faint); display: block; margin-top: 4px; }
+
+/* Travel row */
+.hm-travel-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+.hm-travel-btn {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  border: none; border-radius: 14px;
+  color: white; font-size: 1.1rem; font-weight: 800;
+  padding: 18px 56px;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(200,146,10,0.3);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  transition: all 0.15s;
+}
+.hm-travel-btn:hover {
+  background: linear-gradient(135deg, #F0BC30, var(--gold-light));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(200,146,10,0.4);
+}
+.hm-return-btn {
+  background: var(--parch-light);
+  border: 1.5px solid var(--parch-darker);
+  border-radius: 14px;
+  color: var(--ink-mid); font-size: 0.95rem; font-weight: 600;
+  padding: 18px 28px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s;
+}
+.hm-return-btn:hover { border-color: var(--gold); color: var(--ink); }
+
+/* Forever button hover */
+#forever-btn:hover {
+  transform: scale(1.1) translateY(-2px) !important;
+  box-shadow: 0 6px 28px rgba(200,146,10,0.5),0 3px 12px rgba(0,0,0,0.3) !important;
+}
