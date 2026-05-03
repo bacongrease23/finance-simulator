@@ -109,12 +109,13 @@ function lgRenderMenu(el) {
 }
 
 function lgRenderLanding(el) {
-  // Only show splash once per browser session
-  if (sessionStorage.getItem('ch_splash_shown')) {
+  // Only show splash once per page load (not per session)
+  // Use a page-load flag on window object (cleared on every true page reload)
+  if (window._ch_splash_shown) {
     lgRenderMenu(el);
     return;
   }
-  sessionStorage.setItem('ch_splash_shown', '1');
+  window._ch_splash_shown = true;
 
   el.innerHTML = `
     <div class="lg-splash" id="lg-splash">

@@ -133,40 +133,29 @@ function cmRender() {
 
 // ── MAP ────────────────────────────────────────────────────────
 function cmRenderMap(el) {
-  // Build SVG clipPaths — one per district
-  // Using percentages so clip scales with the container
-  const clipDefs = CM_DISTRICTS.map(d => {
-    const pctPts = d.poly.split(' ').map(pt => {
-      const [x,y] = pt.split(',');
-      return `${(parseFloat(x)/100).toFixed(4)},${(parseFloat(y)/100).toFixed(4)}`;
-    }).join(' ');
-    return `<clipPath id="clip-${d.id}" clipPathUnits="objectBoundingBox">
-      <polygon points="${pctPts}"/>
-    </clipPath>`;
-  }).join('');
+  // Use the pre-cut district piece PNGs directly.
+  // Each piece was exported from Photoshop at 1456x816 with the district
+  // cut out, colored border baked in, and black everywhere else.
+  // mix-blend-mode: screen makes black transparent so pieces layer perfectly.
+  //
+  // SVG polygons sit on top (invisible) for precise hover/click detection.
 
   el.innerHTML = `
     <div class="cm-map-root">
 
-      <!-- SVG defs for clip paths -->
-      <svg style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;">
-        <defs>${clipDefs}</defs>
-      </svg>
-
-      <!-- Dull base map — always shows underneath -->
+      <!-- Dull base map — always visible underneath -->
       <img src="assets/map/map_dull_capital_heights.png" class="cm-base-map" draggable="false"/>
 
-      <!-- One layer per district: full-color map clipped to district shape.
-           Starts at opacity 0. On hover: opacity 1 + lift. -->
+      <!-- District piece PNGs — black areas transparent via screen blend mode -->
       ${CM_DISTRICTS.map(d => `
         <div class="cm-district-layer" id="layer-${d.id}">
-          <img src="assets/map/map_full_capital_heights.png"
-               class="cm-layer-img"
-               style="clip-path:url(#clip-${d.id});"
-               draggable="false"/>
+          <img src="${d.piece}"
+               class="cm-piece-img"
+               draggable="false"
+               onerror="console.warn('Missing piece:', '${d.piece}')"/>
         </div>`).join('')}
 
-      <!-- Invisible SVG polygons on top — handle all mouse events precisely -->
+      <!-- Invisible SVG polygons — precise hover/click zones -->
       <svg class="cm-event-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
            onmouseleave="cmUnhover()">
         ${CM_DISTRICTS.map(d => `
@@ -180,7 +169,7 @@ function cmRenderMap(el) {
             onclick="cmEnterDistrict('${d.id}')"/>`).join('')}
       </svg>
 
-      <!-- District name bar — bottom of screen -->
+      <!-- District name bar -->
       <div class="cm-name-bar" id="cm-name-bar">
         <span id="cm-name-text"></span>
       </div>
@@ -189,16 +178,13 @@ function cmRenderMap(el) {
 
 // ── Hover ──────────────────────────────────────────────────────
 window.cmHover = function(id) {
-  console.log('cmHover called:', id);
   const d = CM_DISTRICTS.find(d => d.id === id);
   CM_DISTRICTS.forEach(other => {
     const layer = document.getElementById(`layer-${other.id}`);
-    console.log(`layer-${other.id}:`, layer ? 'found' : 'MISSING');
     if (!layer) return;
     if (other.id === id) {
       layer.classList.add('lifted');
       layer.classList.remove('dimmed');
-      console.log(`Added lifted to layer-${other.id}, classes:`, layer.className);
     } else {
       layer.classList.remove('lifted');
       layer.classList.add('dimmed');

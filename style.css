@@ -620,62 +620,53 @@ tr:hover td { background: var(--parch); }
   filter: brightness(0.7) saturate(0.5);
 }
 
-/* Each district layer — invisible by default, lifted on hover */
+/* District layer — wraps a piece PNG, covers full canvas */
 .cm-district-layer {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   z-index: 2;
   pointer-events: none;
-  transform-origin: center 60%;
+  transform-origin: center center;
+  /* Black in piece PNG = transparent via screen blend */
   transition:
-    transform 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
-    filter 0.35s ease,
-    opacity 0.35s ease;
-  will-change: transform, filter, opacity;
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.25s ease,
+    opacity 0.25s ease;
+  will-change: transform, filter;
 }
 
-/* Layer inner — starts invisible so dull base shows */
-.cm-layer-inner {
+/* The Photoshop district piece PNG */
+.cm-piece-img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  opacity: 0;
-  transition: opacity 0.35s ease, filter 0.35s ease;
-}
-
-/* The full color map image clipped to district polygon */
-.cm-layer-img {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover; display: block;
+  object-fit: cover;
+  display: block;
   pointer-events: none;
+  /* screen blend: black becomes transparent, colors show through */
+  mix-blend-mode: screen;
 }
 
-/* Event SVG — above everything, handles all hover/click */
+/* Event SVG — precise hover/click, sits above all layers */
 .cm-event-svg {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   z-index: 20;
 }
 
-/* LIFTED — district pops to full color and rises */
+/* LIFTED — piece rises off the dull map */
 .cm-district-layer.lifted {
-  transform: translateY(-20px) scale(1.04);
+  transform: translateY(-18px) scale(1.03);
   z-index: 10;
   filter:
-    drop-shadow(0 24px 40px rgba(0,0,0,0.6))
-    drop-shadow(0 8px 16px rgba(0,0,0,0.4));
-}
-.cm-district-layer.lifted .cm-layer-inner {
-  opacity: 1;
-  filter: brightness(1.1) saturate(1.15);
+    drop-shadow(0 22px 36px rgba(0,0,0,0.65))
+    drop-shadow(0 8px 14px rgba(0,0,0,0.4))
+    brightness(1.15) saturate(1.2);
 }
 
-/* DIMMED — other districts fade further into dull base */
+/* DIMMED — everything else fades when one district is hovered */
 .cm-district-layer.dimmed {
-  opacity: 0.6;
-}
-.cm-district-layer.dimmed .cm-layer-inner {
-  opacity: 0;
+  opacity: 0.25;
+  filter: brightness(0.5);
 }
 
 /* Name bar at bottom */
