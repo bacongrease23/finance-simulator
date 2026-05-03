@@ -162,8 +162,8 @@ function cmRenderMap(el) {
         </defs>
       </svg>
 
-      <!-- Base map — dimmed, always underneath -->
-      <img src="assets/map/map_full_capital_heights.png" class="cm-base-map" draggable="false"/>
+      <!-- Base map — pre-desaturated asset -->
+      <img src="assets/map/map_dull_capital_heights.png" class="cm-base-map" draggable="false"/>
 
       <!-- District layers: feathered soft-edge clip -->
       ${CM_DISTRICTS.map(d => `
