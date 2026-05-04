@@ -493,12 +493,11 @@ window.lgRetVerifyPin = async function() {
     if (inOnboarding) {
       showScreen('screen-onboarding');
       if (window.initOnboarding) window.initOnboarding(fresh);
-    } else if (step === 'complete' && fresh.apartmentId) {
+    } else {
+      // Always go to Player Management after graduation, regardless of apartment status
+      if (window.showForeverBtn) window.showForeverBtn();
       showScreen('screen-home');
       if (window.initHome) window.initHome(fresh);
-    } else {
-      showScreen('screen-citymap');
-      if (window.initCityMap) window.initCityMap(fresh);
     }
   } catch(e) {
     const err = document.getElementById('lg-ret-pin-error');
