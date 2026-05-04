@@ -88,7 +88,7 @@ function lgRenderMenu(el) {
     <div class="lg-landing" style="opacity:0;transition:opacity 0.6s ease;" id="lg-main-landing">
       <div class="lg-landing-inner">
         <h1 class="lg-title">CAPITAL<br>HEIGHTS</h1>
-        <p class="lg-subtitle">Financial Literacy Simulator</p>
+        
         <div class="lg-landing-btns">
           <button class="lg-primary-btn" onclick="lgStartNew()">
             🏙️ Begin Your Journey

@@ -149,10 +149,12 @@ function cmRenderMap(el) {
       <!-- District piece PNGs — black areas transparent via screen blend mode -->
       ${CM_DISTRICTS.map(d => `
         <div class="cm-district-layer" id="layer-${d.id}">
-          <img src="${d.piece}"
-               class="cm-piece-img"
-               draggable="false"
-               onerror="console.warn('Missing piece:', '${d.piece}')"/>
+          <div class="cm-piece-wrap">
+            <img src="${d.piece}"
+                 class="cm-piece-img"
+                 draggable="false"
+                 onerror="console.warn('Missing piece:', '${d.piece}')"/>
+          </div>
         </div>`).join('')}
 
       <!-- Invisible SVG polygons — precise hover/click zones -->
