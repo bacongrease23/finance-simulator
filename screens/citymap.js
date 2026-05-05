@@ -126,48 +126,51 @@ function cmRender() {
 
 // ── MAP ────────────────────────────────────────────────────────
 function cmRenderMap(el) {
-  // Use the pre-cut district piece PNGs directly.
-  // Each piece was exported from Photoshop at 1456x816 with the district
-  // cut out, colored border baked in, and black everywhere else.
-  // mix-blend-mode: screen makes black transparent so pieces layer perfectly.
-  //
-  // SVG polygons sit on top (invisible) for precise hover/click detection.
+  const hasPaths = CM_DISTRICTS.some(d => d.svgPath && d.svgPath.length > 0);
 
   el.innerHTML = `
     <div class="cm-map-root">
-
-      <!-- Dull base map — always visible underneath -->
       <img src="assets/map/map_dull_capital_heights.png" class="cm-base-map" draggable="false"/>
 
-      <!-- District piece PNGs — black areas transparent via screen blend mode -->
-      ${CM_DISTRICTS.map(d => `
-        <div class="cm-district-layer" id="layer-${d.id}">
-          <div class="cm-piece-wrap">
-            <img src="${d.piece}"
-                 class="cm-piece-img"
-                 draggable="false"
-                 onerror="console.warn('Missing piece:', '${d.piece}')"/>
-          </div>
-        </div>`).join('')}
-
-      <!-- Invisible SVG polygons — precise hover/click zones -->
-      <svg class="cm-event-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
+      <svg class="cm-map-svg" viewBox="0 0 1456 816"
+           preserveAspectRatio="xMidYMid meet"
+           style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"
            onmouseleave="cmUnhover()">
-        ${CM_DISTRICTS.map(d => `
-          <polygon
-            points="${d.poly}"
-            fill="transparent"
-            stroke="transparent"
-            stroke-width="1"
-            style="cursor:pointer;"
-            onmouseenter="cmHover('${d.id}')"
-            onclick="cmEnterDistrict('${d.id}')"/>`).join('')}
+        <defs>
+          <filter id="cm-lift-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="rgba(0,0,0,0.65)"/>
+            <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="rgba(0,0,0,0.4)"/>
+          </filter>
+        </defs>
+
+        ${CM_DISTRICTS.map(d => {
+          if (!d.svgPath) return '';
+          return `<g id="cm-group-${d.id}"
+              style="cursor:pointer;transform-origin:center;transform-box:fill-box;
+                     transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),filter 0.25s ease;"
+              onmouseenter="cmHover('${d.id}')"
+              onclick="cmEnterDistrict('${d.id}')">
+            <polygon id="cm-poly-${d.id}"
+              points="${d.svgPath}"
+              fill="${d.color}" fill-opacity="0.15"
+              stroke="${d.color}" stroke-width="2" stroke-opacity="0.6"
+              style="transition:all 0.25s ease;"/>
+            <polygon id="cm-dim-${d.id}"
+              points="${d.svgPath}"
+              fill="rgba(0,0,0,0)" pointer-events="none"
+              style="transition:fill 0.25s ease;"/>
+          </g>`;
+        }).join('')}
       </svg>
 
-      <!-- District name bar -->
       <div class="cm-name-bar" id="cm-name-bar">
         <span id="cm-name-text"></span>
       </div>
+
+      ${!hasPaths ? `<div class="cm-no-paths-msg">
+        No district paths saved yet.<br>
+        Go to Admin → District SVG Calibrator to trace your district boundaries.
+      </div>` : ''}
     </div>`;
 }
 
@@ -180,25 +183,24 @@ window.cmHover = function(id) {
     const dim   = document.getElementById(`cm-dim-${other.id}`);
     if (!group) return;
     if (other.id === id) {
-      // Lift: move up, full color, shadow
-      group.style.transform = 'translateY(-14px)';
+      // Use SVG transform attribute — works in all browsers
+      group.setAttribute('transform', 'translate(0,-18)');
       group.style.filter = 'url(#cm-lift-shadow)';
-      group.style.zIndex = '10';
       if (poly) {
-        poly.setAttribute('fill-opacity', '0.45');
+        poly.setAttribute('fill-opacity', '0.5');
         poly.setAttribute('stroke-opacity', '1');
-        poly.setAttribute('stroke-width', '2.5');
+        poly.setAttribute('stroke-width', '3');
       }
-      if (dim) dim.setAttribute('fill', 'rgba(20,14,6,0)');
+      if (dim) dim.setAttribute('fill', 'rgba(0,0,0,0)');
     } else {
-      // Dim: darken, push back
-      group.style.transform = 'translateY(0)';
+      group.setAttribute('transform', 'translate(0,0)');
       group.style.filter = 'none';
       if (poly) {
-        poly.setAttribute('fill-opacity', '0.06');
-        poly.setAttribute('stroke-opacity', '0.2');
+        poly.setAttribute('fill-opacity', '0.05');
+        poly.setAttribute('stroke-opacity', '0.15');
+        poly.setAttribute('stroke-width', '1');
       }
-      if (dim) dim.setAttribute('fill', 'rgba(20,14,6,0.45)');
+      if (dim) dim.setAttribute('fill', 'rgba(0,0,0,0.4)');
     }
   });
   const bar = document.getElementById('cm-name-bar');
@@ -215,9 +217,9 @@ window.cmUnhover = function() {
     const group = document.getElementById(`cm-group-${d.id}`);
     const poly  = document.getElementById(`cm-poly-${d.id}`);
     const dim   = document.getElementById(`cm-dim-${d.id}`);
-    if (group) { group.style.transform='translateY(0)'; group.style.filter='none'; }
-    if (poly)  { poly.setAttribute('fill-opacity','0.18'); poly.setAttribute('stroke-opacity','0.7'); poly.setAttribute('stroke-width','2'); }
-    if (dim)   { dim.setAttribute('fill','rgba(20,14,6,0)'); }
+    if (group) { group.setAttribute('transform','translate(0,0)'); group.style.filter='none'; }
+    if (poly)  { poly.setAttribute('fill-opacity','0.15'); poly.setAttribute('stroke-opacity','0.6'); poly.setAttribute('stroke-width','2'); }
+    if (dim)   { dim.setAttribute('fill','rgba(0,0,0,0)'); }
   });
   const bar = document.getElementById('cm-name-bar');
   if (bar) bar.classList.remove('visible');
