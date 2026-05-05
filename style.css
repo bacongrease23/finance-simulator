@@ -621,15 +621,14 @@ tr:hover td { background: var(--parch); }
   /* Dull map asset — no extra CSS filter needed */
 }
 
-/* District layer wrapper */
+/* District layer — transparent PNG sits exactly over dull base map */
 .cm-district-layer {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   z-index: 2;
   pointer-events: none;
   transform-origin: center center;
-  /* Pieces visible at low opacity over dull map by default */
-  opacity: 0.15;
+  opacity: 0;  /* invisible at rest — dull map shows through */
   transition:
     transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
     opacity 0.25s ease,
@@ -641,14 +640,14 @@ tr:hover td { background: var(--parch); }
   position: absolute; inset: 0;
   width: 100%; height: 100%;
 }
+
+/* No blend mode needed — alpha channel handles transparency */
 .cm-piece-img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: fill;
   display: block;
   pointer-events: none;
-  /* multiply makes black transparent, colored districts show */
-  mix-blend-mode: multiply;
 }
 
 /* Event SVG — above everything */
@@ -658,17 +657,19 @@ tr:hover td { background: var(--parch); }
   z-index: 20;
 }
 
-/* LIFTED — full opacity + rises */
+/* LIFTED — piece appears and rises */
 .cm-district-layer.lifted {
   transform: translateY(-22px) scale(1.04);
   z-index: 10;
   opacity: 1;
-  filter: drop-shadow(0 20px 32px rgba(0,0,0,0.6)) drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+  filter:
+    drop-shadow(0 24px 40px rgba(0,0,0,0.65))
+    drop-shadow(0 8px 16px rgba(0,0,0,0.45));
 }
 
-/* DIMMED — everything else nearly invisible */
+/* DIMMED — other districts invisible when one is hovered */
 .cm-district-layer.dimmed {
-  opacity: 0.05;
+  opacity: 0;
 }
 
 /* Name bar at bottom */

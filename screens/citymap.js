@@ -87,31 +87,25 @@ window.CM_DISTRICTS = CM_DISTRICTS;
 
 let cm = { player:null, view:'map', activeDistrict:null, carouselIdx:0 };
 
-// Load saved polygons from Firebase as soon as GameState is ready
-async function cmLoadSavedPolygons() {
+// Load saved SVG paths from Firebase
+async function cmLoadSavedPaths() {
   try {
     if (!window.GameState || !window.GameState.FirestoreDB) return;
     const saved = await window.GameState.FirestoreDB.loadDistrictPolygons();
     if (saved) {
-      let count = 0;
       CM_DISTRICTS.forEach(d => {
-        if (saved[d.id]) { d.poly = saved[d.id]; count++; }
+        if (saved[d.id]) d.svgPath = saved[d.id];
       });
       window.CM_DISTRICTS = CM_DISTRICTS;
-      console.log(`Loaded ${count} saved district polygons from Firebase`);
     }
   } catch(e) {
-    console.warn('Could not load district polygons:', e.message);
+    console.warn('Could not load district paths:', e.message);
   }
 }
 
-// Try loading on module init (may retry once GameState is ready)
 (function tryLoad() {
-  if (window.GameState && window.GameState.FirestoreDB) {
-    cmLoadSavedPolygons();
-  } else {
-    setTimeout(tryLoad, 200);
-  }
+  if (window.GameState && window.GameState.FirestoreDB) cmLoadSavedPaths();
+  else setTimeout(tryLoad, 200);
 })();
 
 window.initCityMap = async function(player) {
@@ -119,8 +113,7 @@ window.initCityMap = async function(player) {
   cm.view = 'map';
   cm.activeDistrict = null;
   cm.carouselIdx = 0;
-  // Reload polygons in case they changed since page load
-  await cmLoadSavedPolygons();
+  await cmLoadSavedPaths();
   cmRender();
 };
 
@@ -182,14 +175,30 @@ function cmRenderMap(el) {
 window.cmHover = function(id) {
   const d = CM_DISTRICTS.find(d => d.id === id);
   CM_DISTRICTS.forEach(other => {
-    const layer = document.getElementById(`layer-${other.id}`);
-    if (!layer) return;
+    const group = document.getElementById(`cm-group-${other.id}`);
+    const poly  = document.getElementById(`cm-poly-${other.id}`);
+    const dim   = document.getElementById(`cm-dim-${other.id}`);
+    if (!group) return;
     if (other.id === id) {
-      layer.classList.add('lifted');
-      layer.classList.remove('dimmed');
+      // Lift: move up, full color, shadow
+      group.style.transform = 'translateY(-14px)';
+      group.style.filter = 'url(#cm-lift-shadow)';
+      group.style.zIndex = '10';
+      if (poly) {
+        poly.setAttribute('fill-opacity', '0.45');
+        poly.setAttribute('stroke-opacity', '1');
+        poly.setAttribute('stroke-width', '2.5');
+      }
+      if (dim) dim.setAttribute('fill', 'rgba(20,14,6,0)');
     } else {
-      layer.classList.remove('lifted');
-      layer.classList.add('dimmed');
+      // Dim: darken, push back
+      group.style.transform = 'translateY(0)';
+      group.style.filter = 'none';
+      if (poly) {
+        poly.setAttribute('fill-opacity', '0.06');
+        poly.setAttribute('stroke-opacity', '0.2');
+      }
+      if (dim) dim.setAttribute('fill', 'rgba(20,14,6,0.45)');
     }
   });
   const bar = document.getElementById('cm-name-bar');
@@ -203,8 +212,12 @@ window.cmHover = function(id) {
 
 window.cmUnhover = function() {
   CM_DISTRICTS.forEach(d => {
-    const layer = document.getElementById(`layer-${d.id}`);
-    if (layer) { layer.classList.remove('lifted'); layer.classList.remove('dimmed'); }
+    const group = document.getElementById(`cm-group-${d.id}`);
+    const poly  = document.getElementById(`cm-poly-${d.id}`);
+    const dim   = document.getElementById(`cm-dim-${d.id}`);
+    if (group) { group.style.transform='translateY(0)'; group.style.filter='none'; }
+    if (poly)  { poly.setAttribute('fill-opacity','0.18'); poly.setAttribute('stroke-opacity','0.7'); poly.setAttribute('stroke-width','2'); }
+    if (dim)   { dim.setAttribute('fill','rgba(20,14,6,0)'); }
   });
   const bar = document.getElementById('cm-name-bar');
   if (bar) bar.classList.remove('visible');
