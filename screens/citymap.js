@@ -134,8 +134,8 @@ function cmRenderMap(el) {
 
       <svg class="cm-map-svg" viewBox="0 0 1456 816"
            preserveAspectRatio="xMidYMid meet"
-           style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"
-           onmouseleave="cmUnhover()">
+           id="cm-map-svg"
+           style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;">
         <defs>
           <filter id="cm-lift-shadow" x="-30%" y="-30%" width="160%" height="160%">
             <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="rgba(0,0,0,0.65)"/>
@@ -145,20 +145,14 @@ function cmRenderMap(el) {
 
         ${CM_DISTRICTS.map(d => {
           if (!d.svgPath) return '';
-          return `<g id="cm-group-${d.id}"
-              style="cursor:pointer;transform-origin:center;transform-box:fill-box;
-                     transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),filter 0.25s ease;"
-              onmouseenter="cmHover('${d.id}')"
-              onclick="cmEnterDistrict('${d.id}')">
+          return `<g id="cm-group-${d.id}" style="cursor:pointer;">
             <polygon id="cm-poly-${d.id}"
               points="${d.svgPath}"
               fill="${d.color}" fill-opacity="0.15"
-              stroke="${d.color}" stroke-width="2" stroke-opacity="0.6"
-              style="transition:all 0.25s ease;"/>
+              stroke="${d.color}" stroke-width="2" stroke-opacity="0.6"/>
             <polygon id="cm-dim-${d.id}"
               points="${d.svgPath}"
-              fill="rgba(0,0,0,0)" pointer-events="none"
-              style="transition:fill 0.25s ease;"/>
+              fill="rgba(0,0,0,0)" pointer-events="none"/>
           </g>`;
         }).join('')}
       </svg>
@@ -172,6 +166,16 @@ function cmRenderMap(el) {
         Go to Admin → District SVG Calibrator to trace your district boundaries.
       </div>` : ''}
     </div>`;
+
+  // Attach events via JS — CSP blocks inline event handlers in SVG
+  CM_DISTRICTS.forEach(d => {
+    const group = document.getElementById('cm-group-' + d.id);
+    if (!group) return;
+    group.addEventListener('mouseenter', function() { cmHover(d.id); });
+    group.addEventListener('click', function() { cmEnterDistrict(d.id); });
+  });
+  const mapSvg = document.getElementById('cm-map-svg');
+  if (mapSvg) mapSvg.addEventListener('mouseleave', function() { cmUnhover(); });
 }
 
 // ── Hover ──────────────────────────────────────────────────────
