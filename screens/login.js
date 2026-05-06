@@ -51,8 +51,12 @@ window.initLogin = async function() {
     setTimeout(() => window.initLogin(), 50);
     return;
   }
+  // Only refresh claimed and set step on first true init
+  // Don't reset step if splash is already showing
+  if (!window._ch_splash_shown) {
+    lg.step = 'landing';
+  }
   await lgRefreshClaimed();
-  lg.step = 'landing';
   lgRender();
 };
 
@@ -109,8 +113,7 @@ function lgRenderMenu(el) {
 }
 
 function lgRenderLanding(el) {
-  // Only show splash once per page load (not per session)
-  // Use a page-load flag on window object (cleared on every true page reload)
+  // Only show splash once per page load
   if (window._ch_splash_shown) {
     lgRenderMenu(el);
     return;
@@ -122,22 +125,43 @@ function lgRenderLanding(el) {
       <img src="assets/capital_heights_landing_page.png" class="lg-splash-img"/>
     </div>`;
 
-  // Fade in from dark over 1s
-  const splash = document.getElementById('lg-splash');
-  splash.style.opacity = '0';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      splash.style.transition = 'opacity 1s ease';
-      splash.style.opacity = '1';
-    });
-  });
+  // Wait for gate to be gone before starting the splash sequence
+  function startSplashSequence() {
+    const gate = document.getElementById('fs-gate');
+    if (gate) {
+      // Gate still visible — wait for it to be removed then start
+      const observer = new MutationObserver(() => {
+        if (!document.getElementById('fs-gate')) {
+          observer.disconnect();
+          runSplash();
+        }
+      });
+      observer.observe(document.body, { childList: true });
+      return;
+    }
+    runSplash();
+  }
 
-  // 1s fade in + 3s hold = 4s, then 0.5s fade out to menu
-  setTimeout(() => {
-    splash.style.transition = 'opacity 0.5s ease';
+  function runSplash() {
+    const splash = document.getElementById('lg-splash');
+    if (!splash) return;
     splash.style.opacity = '0';
-    setTimeout(() => lgRenderMenu(el), 520);
-  }, 4000);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        splash.style.transition = 'opacity 1s ease';
+        splash.style.opacity = '1';
+      });
+    });
+    // 1s fade in + 3.5s hold, then 0.5s fade out
+    setTimeout(() => {
+      if (!splash.parentNode) return;
+      splash.style.transition = 'opacity 0.5s ease';
+      splash.style.opacity = '0';
+      setTimeout(() => lgRenderMenu(el), 520);
+    }, 4500);
+  }
+
+  startSplashSequence();
 }
 
 window.lgStartNew = async function() {
