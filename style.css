@@ -621,74 +621,41 @@ tr:hover td { background: var(--parch); }
   /* Dull map asset — no extra CSS filter needed */
 }
 
-/* District layer — transparent PNG sits exactly over dull base map */
-.cm-district-layer {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+/* SVG map overlay — sits above base map, contains all district shapes */
+.cm-map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 2;
-  pointer-events: none;
-  transform-origin: center center;
-  opacity: 0;  /* invisible at rest — dull map shows through */
-  transition:
-    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.25s ease,
-    filter 0.25s ease;
-  will-change: transform, opacity;
+  overflow: visible;
 }
 
-.cm-piece-wrap {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+/* District group — lift target */
+.cm-district-group {
+  cursor: pointer;
+  transition: filter 0.25s ease;
 }
 
-/* No blend mode needed — alpha channel handles transparency */
-.cm-piece-img {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: fill;
-  display: block;
-  pointer-events: none;
+/* Polygon transitions */
+.cm-district-group polygon {
+  transition: fill-opacity 0.25s ease, stroke-opacity 0.25s ease, stroke-width 0.2s ease;
 }
 
-/* Event SVG — above everything */
-.cm-event-svg {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  z-index: 20;
-}
-
-/* LIFTED — piece appears and rises */
-.cm-district-layer.lifted {
-  transform: translateY(-22px) scale(1.04);
+/* No-paths message */
+.cm-no-paths-msg {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(26,18,8,0.88);
+  border: 1px solid #4a3a20;
+  border-radius: 12px;
+  padding: 28px 36px;
+  text-align: center;
+  color: #c8b890;
+  font-size: 1rem;
+  line-height: 1.7;
   z-index: 10;
-  opacity: 1;
-  filter:
-    drop-shadow(0 24px 40px rgba(0,0,0,0.65))
-    drop-shadow(0 8px 16px rgba(0,0,0,0.45));
-}
-
-/* DIMMED — other districts invisible when one is hovered */
-.cm-district-layer.dimmed {
-  opacity: 0;
-}
-
-/* Name bar at bottom */
-.cm-name-bar {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  z-index: 20;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px 24px 28px;
-  background: linear-gradient(to top, rgba(26,18,8,0.95) 0%, rgba(26,18,8,0) 100%);
-  opacity: 0; transform: translateY(8px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  pointer-events: none;
-}
-.cm-name-bar.visible { opacity: 1; transform: translateY(0); }
-.cm-name-bar span {
-  font-family: 'Cinzel', serif;
-  font-size: 2rem; font-weight: 700;
-  letter-spacing: 5px; text-transform: uppercase;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.9);
 }
 
 /* ── District screen ── */
