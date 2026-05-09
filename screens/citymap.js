@@ -1,14 +1,12 @@
 // ============================================================
 // CAPITAL HEIGHTS — citymap.js
-// SVG polygon zones with CSS 3D lift + clipped map art
+// Placeholder SVG map — fully interactive, no external assets
 // ============================================================
 
 const CM_DISTRICTS = [
   {
     id:'commons', name:'The Commons', color:'#4A8AC8',
     bg:'assets/districts/commons_bg.png',
-    // SVG polygon as % of viewBox 0 0 100 100
-    poly:'0.0,0.0 70.9,0.0 72.4,0.7 68.7,12.9 48.8,49.3 48.1,50.2 47.5,50.6 47.1,50.8 23.5,53.1 4.1,52.6 0.1,52.3',
     buildings:[
       {id:'medical', name:'Capital Heights Medical Center', desc:'Visit the hospital or apply for health jobs',  img:'assets/exteriors/capital_heights_medical_center.png', screen:'screen-location', location:'medical'},
       {id:'coffee',  name:'Morning Ledger Coffee',          desc:'Grab a coffee and check your to-do list',      img:'assets/exteriors/morning_ledger_coffee.png',           screen:'screen-location', location:'coffee'},
@@ -21,7 +19,6 @@ const CM_DISTRICTS = [
   {
     id:'oldtown', name:'Old Town', color:'#A84AC8',
     bg:'assets/districts/oldtown_bg.png',
-    poly:'0.0,23.8 46.8,38.6 47.1,38.8 47.7,39.6 48.0,40.4 48.1,51.8 47.8,54.4 46.8,59.0 46.0,60.6 44.9,62.3 41.3,65.9 31.6,74.8 29.7,74.0 25.8,71.5 23.9,70.0 23.4,69.6 22.0,67.8 20.7,65.9 19.4,64.0 0.1,25.0',
     buildings:[
       {id:'grill',   name:'Capitol Grill',        desc:'Dine in or apply for restaurant jobs',   img:'assets/exteriors/capitol_grill.png',        screen:'screen-location', location:'grill'},
       {id:'bistro',  name:'Le Bistro Capital',    desc:'Upscale dining and hospitality jobs',     img:'assets/exteriors/le_bistro_capital.png',    screen:'screen-location', location:'bistro'},
@@ -33,7 +30,6 @@ const CM_DISTRICTS = [
   {
     id:'crestwood', name:'Crestwood', color:'#C8784A',
     bg:'assets/districts/crestwood_bg.png',
-    poly:'18.2,50.3 32.6,75.2 33.0,76.1 33.1,76.8 31.4,99.7 30.7,99.9 5.8,99.9 0.3,99.7 0.2,96.7 0.0,78.0 0.0,59.8 0.1,54.1 0.3,53.9 4.5,51.3 5.3,51.1 9.7,50.8',
     buildings:[
       {id:'realty', name:'Crestwood Realty',       desc:'Browse homes for sale in Crestwood',   img:'assets/exteriors/crestwood_realty.png',       screen:'screen-housing',  location:'realty'},
       {id:'club',   name:'Crestwood Country Club',  desc:'Apply for event and hospitality jobs', img:'assets/exteriors/crestwood_country_club.png', screen:'screen-jobboard', location:'club'},
@@ -42,7 +38,6 @@ const CM_DISTRICTS = [
   {
     id:'financial', name:'The Financial District', color:'#C8A84A',
     bg:'assets/districts/financial_bg.png',
-    poly:'73.1,0.0 75.9,0.1 76.2,1.3 76.6,32.7 76.7,57.8 76.6,65.9 76.3,67.5 75.8,67.6 50.1,68.2 49.1,68.0 48.8,67.5 48.9,66.2 52.0,34.6 52.5,31.3 54.4,24.5 55.6,21.6 56.6,20.2',
     buildings:[
       {id:'capital', name:'Capital Tower',            desc:'Apply for finance and business jobs',    img:'assets/exteriors/capital_tower.png',            screen:'screen-jobboard', location:'capital'},
       {id:'global',  name:'Global Equity Tower',      desc:'Apply for economics and investment jobs', img:'assets/exteriors/global_equity_tower.png',     screen:'screen-jobboard', location:'global'},
@@ -53,7 +48,6 @@ const CM_DISTRICTS = [
   {
     id:'capitol', name:'Capitol Square', color:'#4AC87A',
     bg:'assets/districts/capitol_bg.png',
-    poly:'61.2,66.3 65.5,66.4 74.6,67.5 75.3,68.5 75.8,69.7 76.1,72.3 76.8,99.0 76.4,99.8 75.4,99.9 41.6,99.9 37.1,99.8 37.0,92.1 37.4,87.6 38.2,82.0 38.4,80.7 39.5,76.8 48.9,67.7 50.1,67.5',
     buildings:[
       {id:'fountain', name:'Central Fountain Plaza',        desc:'The heart of Capital Heights',       img:'assets/exteriors/central_fountain_plaza.png',        screen:'screen-location', location:'plaza'},
       {id:'dmv',      name:'DMV',                          desc:'Register your vehicle or update ID', img:'assets/exteriors/dmv.png',                           screen:'screen-location', location:'dmv'},
@@ -63,7 +57,6 @@ const CM_DISTRICTS = [
   {
     id:'eastbrook', name:'Eastbrook', color:'#C84A4A',
     bg:'assets/districts/eastbrook_bg.png',
-    poly:'92.0,52.8 99.1,53.2 99.3,53.5 99.8,54.1 99.9,68.3 99.9,97.3 99.9,99.0 97.5,99.9 76.9,99.9 76.6,98.2 76.1,54.5 76.7,53.5 83.4,53.1',
     buildings:[
       {id:'meridian',  name:'Meridian Heights', desc:'Upscale apartments available to rent',   img:'assets/exteriors/meridian_heights.png', screen:'screen-housing', location:'meridian'},
       {id:'fairfax',   name:'Fairfax Commons',  desc:'Mid-range apartments available to rent', img:'assets/exteriors/fairfax_commons.png',  screen:'screen-housing', location:'fairfax'},
@@ -73,7 +66,6 @@ const CM_DISTRICTS = [
   {
     id:'riverside', name:'Riverside', color:'#4AC8C8',
     bg:'assets/districts/riverside_bg.png',
-    poly:'75.7,0.0 99.6,0.0 99.8,3.7 99.9,8.0 99.9,19.2 99.9,54.0 93.8,54.6 88.8,54.3 79.1,53.6 76.7,52.5 76.4,50.8 76.0,32.2',
     buildings:[
       {id:'nova',       name:'Nova Park Residences', desc:'Modern apartments along the river', img:'assets/exteriors/nova_park_residences.png', screen:'screen-housing', location:'nova'},
       {id:'centennial', name:'Centennial Court',     desc:'Comfortable apartments to rent',    img:'assets/exteriors/centennial_court.png',     screen:'screen-housing', location:'centennial'},
@@ -82,38 +74,31 @@ const CM_DISTRICTS = [
   },
 ];
 
-// Expose to admin calibrator
 window.CM_DISTRICTS = CM_DISTRICTS;
+
+// Placeholder SVG layout — clean geometric map
+// viewBox: 0 0 1000 620
+const CM_PLACEHOLDER = {
+  viewBox: '0 0 1000 620',
+  river: 'M 480,0 C 470,80 460,120 450,180 C 440,240 430,280 420,340 C 410,400 400,450 390,520 C 380,570 370,600 360,620',
+  districts: {
+    commons:   { points: '0,0 420,0 415,50 405,120 395,180 380,240 0,240',            label: {x:190, y:120} },
+    financial: { points: '420,0 1000,0 1000,280 680,280 650,240 630,180 615,120 430,80 415,50', label: {x:720, y:130} },
+    oldtown:   { points: '0,240 380,240 365,320 340,400 310,460 270,520 0,520',       label: {x:170, y:370} },
+    capitol:   { points: '390,520 420,340 430,280 680,280 700,360 700,520 700,620 360,620', label: {x:560, y:480} },
+    eastbrook: { points: '700,280 1000,280 1000,620 700,620 700,520 700,360',         label: {x:850, y:450} },
+    riverside: { points: '680,280 1000,280 1000,0 650,0 630,80 620,150 650,240',      label: {x:840, y:130} },
+    crestwood: { points: '0,520 270,520 240,560 200,590 140,610 0,620',               label: {x:120, y:575} },
+  }
+};
 
 let cm = { player:null, view:'map', activeDistrict:null, carouselIdx:0 };
 
-// Load saved SVG paths from Firebase
-async function cmLoadSavedPaths() {
-  try {
-    if (!window.GameState || !window.GameState.FirestoreDB) return;
-    const saved = await window.GameState.FirestoreDB.loadDistrictPolygons();
-    if (saved) {
-      CM_DISTRICTS.forEach(d => {
-        if (saved[d.id]) d.svgPath = saved[d.id];
-      });
-      window.CM_DISTRICTS = CM_DISTRICTS;
-    }
-  } catch(e) {
-    console.warn('Could not load district paths:', e.message);
-  }
-}
-
-(function tryLoad() {
-  if (window.GameState && window.GameState.FirestoreDB) cmLoadSavedPaths();
-  else setTimeout(tryLoad, 200);
-})();
-
-window.initCityMap = async function(player) {
+window.initCityMap = function(player) {
   cm.player = player;
   cm.view = 'map';
   cm.activeDistrict = null;
   cm.carouselIdx = 0;
-  await cmLoadSavedPaths();
   cmRender();
 };
 
@@ -124,87 +109,112 @@ function cmRender() {
   else cmRenderDistrict(el);
 }
 
-// ── MAP ────────────────────────────────────────────────────────
+// ── PLACEHOLDER MAP ───────────────────────────────────────────
 function cmRenderMap(el) {
-  const hasPaths = CM_DISTRICTS.some(d => d.svgPath && d.svgPath.length > 0);
+  const p = CM_PLACEHOLDER;
 
   el.innerHTML = `
-    <div class="cm-map-root">
-      <img src="assets/map/map_dull_capital_heights.png" class="cm-base-map" draggable="false"/>
-
-      <svg class="cm-map-svg" viewBox="0 0 1456 816"
-           preserveAspectRatio="xMidYMid meet"
-           id="cm-map-svg"
-           style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;">
+    <div class="cm-wrap">
+      <svg class="cm-svg-map" viewBox="${p.viewBox}" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <filter id="cm-lift-shadow" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="rgba(0,0,0,0.65)"/>
-            <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="rgba(0,0,0,0.4)"/>
+          <filter id="district-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,0.5)"/>
+          </filter>
+          <filter id="district-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
 
+        <!-- Background -->
+        <rect width="1000" height="620" fill="#F0E8D0"/>
+
+        <!-- Grid lines for city feel -->
+        ${Array.from({length:20},(_,i)=>`<line x1="${i*55}" y1="0" x2="${i*55}" y2="620" stroke="#DDD0B0" stroke-width="0.5"/>`).join('')}
+        ${Array.from({length:12},(_,i)=>`<line x1="0" y1="${i*55}" x2="1000" y2="${i*55}" stroke="#DDD0B0" stroke-width="0.5"/>`).join('')}
+
+        <!-- District shapes -->
         ${CM_DISTRICTS.map(d => {
-          if (!d.svgPath) return '';
-          return `<g id="cm-group-${d.id}" style="cursor:pointer;">
-            <polygon id="cm-poly-${d.id}"
-              points="${d.svgPath}"
-              fill="${d.color}" fill-opacity="0.15"
-              stroke="${d.color}" stroke-width="2" stroke-opacity="0.6"/>
-            <polygon id="cm-dim-${d.id}"
-              points="${d.svgPath}"
-              fill="rgba(0,0,0,0)" pointer-events="none"/>
+          const pd = p.districts[d.id];
+          if (!pd) return '';
+          return `<g class="cm-district-hit" id="cm-g-${d.id}" data-id="${d.id}">
+            <polygon
+              id="cm-poly-${d.id}"
+              points="${pd.points}"
+              fill="${d.color}"
+              fill-opacity="0.25"
+              stroke="${d.color}"
+              stroke-width="2.5"
+              stroke-opacity="0.7"
+              stroke-linejoin="round"/>
           </g>`;
         }).join('')}
+
+        <!-- River -->
+        <path d="${p.river}" fill="none" stroke="#6AB4D4" stroke-width="18"
+          stroke-linecap="round" stroke-opacity="0.7"/>
+        <path d="${p.river}" fill="none" stroke="#8ACCE4" stroke-width="10"
+          stroke-linecap="round" stroke-opacity="0.5"/>
+
+        <!-- District labels -->
+        ${CM_DISTRICTS.map(d => {
+          const pd = p.districts[d.id];
+          if (!pd) return '';
+          return `<text
+            x="${pd.label.x}" y="${pd.label.y}"
+            text-anchor="middle" dominant-baseline="middle"
+            font-family="Cinzel, serif"
+            font-size="${d.id === 'financial' ? '13' : d.id === 'crestwood' ? '9' : '11'}"
+            font-weight="700"
+            fill="${d.color}"
+            paint-order="stroke"
+            stroke="#F0E8D0"
+            stroke-width="3"
+            pointer-events="none"
+            opacity="0.9">${d.name}</text>`;
+        }).join('')}
+
+        <!-- City title -->
+        <text x="500" y="305" text-anchor="middle"
+          font-family="Cinzel, serif" font-size="11" font-weight="700"
+          fill="#8A7458" opacity="0.6" pointer-events="none">CAPITAL HEIGHTS</text>
       </svg>
 
+      <!-- Name bar -->
       <div class="cm-name-bar" id="cm-name-bar">
         <span id="cm-name-text"></span>
       </div>
-
-      ${!hasPaths ? `<div class="cm-no-paths-msg">
-        No district paths saved yet.<br>
-        Go to Admin → District SVG Calibrator to trace your district boundaries.
-      </div>` : ''}
     </div>`;
 
-  // Attach events via JS — CSP blocks inline event handlers in SVG
+  // Attach events — no inline handlers (CSP)
   CM_DISTRICTS.forEach(d => {
-    const group = document.getElementById('cm-group-' + d.id);
-    if (!group) return;
-    group.addEventListener('mouseenter', function() { cmHover(d.id); });
-    group.addEventListener('click', function() { cmEnterDistrict(d.id); });
+    const g = document.getElementById('cm-g-' + d.id);
+    if (!g) return;
+    g.addEventListener('mouseenter', () => cmHover(d.id));
+    g.addEventListener('mouseleave', () => cmUnhover());
+    g.addEventListener('click', () => cmEnterDistrict(d.id));
   });
-  const mapSvg = document.getElementById('cm-map-svg');
-  if (mapSvg) mapSvg.addEventListener('mouseleave', function() { cmUnhover(); });
 }
 
-// ── Hover ──────────────────────────────────────────────────────
+// ── HOVER ─────────────────────────────────────────────────────
 window.cmHover = function(id) {
   const d = CM_DISTRICTS.find(d => d.id === id);
   CM_DISTRICTS.forEach(other => {
-    const group = document.getElementById(`cm-group-${other.id}`);
-    const poly  = document.getElementById(`cm-poly-${other.id}`);
-    const dim   = document.getElementById(`cm-dim-${other.id}`);
-    if (!group) return;
+    const g    = document.getElementById('cm-g-' + other.id);
+    const poly = document.getElementById('cm-poly-' + other.id);
+    if (!g || !poly) return;
     if (other.id === id) {
-      // Use SVG transform attribute — works in all browsers
-      group.setAttribute('transform', 'translate(0,-18)');
-      group.style.filter = 'url(#cm-lift-shadow)';
-      if (poly) {
-        poly.setAttribute('fill-opacity', '0.5');
-        poly.setAttribute('stroke-opacity', '1');
-        poly.setAttribute('stroke-width', '3');
-      }
-      if (dim) dim.setAttribute('fill', 'rgba(0,0,0,0)');
+      g.setAttribute('transform', 'translate(0,-12)');
+      g.style.filter = 'url(#district-shadow)';
+      poly.setAttribute('fill-opacity', '0.6');
+      poly.setAttribute('stroke-opacity', '1');
+      poly.setAttribute('stroke-width', '3');
     } else {
-      group.setAttribute('transform', 'translate(0,0)');
-      group.style.filter = 'none';
-      if (poly) {
-        poly.setAttribute('fill-opacity', '0.05');
-        poly.setAttribute('stroke-opacity', '0.15');
-        poly.setAttribute('stroke-width', '1');
-      }
-      if (dim) dim.setAttribute('fill', 'rgba(0,0,0,0.4)');
+      g.setAttribute('transform', '');
+      g.style.filter = '';
+      poly.setAttribute('fill-opacity', '0.08');
+      poly.setAttribute('stroke-opacity', '0.2');
+      poly.setAttribute('stroke-width', '1.5');
     }
   });
   const bar = document.getElementById('cm-name-bar');
@@ -218,18 +228,20 @@ window.cmHover = function(id) {
 
 window.cmUnhover = function() {
   CM_DISTRICTS.forEach(d => {
-    const group = document.getElementById(`cm-group-${d.id}`);
-    const poly  = document.getElementById(`cm-poly-${d.id}`);
-    const dim   = document.getElementById(`cm-dim-${d.id}`);
-    if (group) { group.setAttribute('transform','translate(0,0)'); group.style.filter='none'; }
-    if (poly)  { poly.setAttribute('fill-opacity','0.15'); poly.setAttribute('stroke-opacity','0.6'); poly.setAttribute('stroke-width','2'); }
-    if (dim)   { dim.setAttribute('fill','rgba(0,0,0,0)'); }
+    const g    = document.getElementById('cm-g-' + d.id);
+    const poly = document.getElementById('cm-poly-' + d.id);
+    if (g)    { g.setAttribute('transform', ''); g.style.filter = ''; }
+    if (poly) {
+      poly.setAttribute('fill-opacity', '0.25');
+      poly.setAttribute('stroke-opacity', '0.7');
+      poly.setAttribute('stroke-width', '2.5');
+    }
   });
   const bar = document.getElementById('cm-name-bar');
   if (bar) bar.classList.remove('visible');
 };
 
-// ── Enter district ─────────────────────────────────────────────
+// ── ENTER DISTRICT ────────────────────────────────────────────
 window.cmEnterDistrict = function(id) {
   cm.activeDistrict = CM_DISTRICTS.find(d => d.id === id);
   cm.carouselIdx = 0;
@@ -249,17 +261,18 @@ window.cmEnterDistrict = function(id) {
   });
 };
 
-// ── District screen ────────────────────────────────────────────
+// ── DISTRICT SCREEN ───────────────────────────────────────────
 function cmRenderDistrict(el) {
   const d = cm.activeDistrict;
   const b = d.buildings[cm.carouselIdx];
   const total = d.buildings.length;
+
   el.innerHTML = `
     <div class="cm-district-wrap" style="background-image:url('${d.bg}');">
       <div class="cm-district-overlay"></div>
       <div class="cm-district-ui">
         <div class="cm-district-carousel">
-          <button class="cm-big-arrow" onclick="cmPrev()" ${total<=1?'disabled':''}>‹</button>
+          <button class="cm-big-arrow" id="cm-prev-btn" ${total<=1?'disabled':''}>‹</button>
           <div class="cm-district-building">
             ${b.img
               ? `<img src="${b.img}" class="cm-district-building-img"
@@ -271,13 +284,19 @@ function cmRenderDistrict(el) {
             <div class="cm-district-dots">
               ${d.buildings.map((_,i) => `<span class="cm-dot ${i===cm.carouselIdx?'active':''}"></span>`).join('')}
             </div>
-            <button class="cm-district-enter-btn" onclick="cmEnterBuilding()">ENTER</button>
+            <button class="cm-district-enter-btn" id="cm-enter-btn">ENTER</button>
           </div>
-          <button class="cm-big-arrow" onclick="cmNext()" ${total<=1?'disabled':''}>›</button>
+          <button class="cm-big-arrow" id="cm-next-btn" ${total<=1?'disabled':''}>›</button>
         </div>
-        <button class="cm-back-map" onclick="cmBackToMap()">← Back to Map</button>
+        <button class="cm-back-map" id="cm-back-btn">← Back to Map</button>
       </div>
     </div>`;
+
+  // Attach events — no inline handlers
+  document.getElementById('cm-prev-btn').addEventListener('click', cmPrev);
+  document.getElementById('cm-next-btn').addEventListener('click', cmNext);
+  document.getElementById('cm-enter-btn').addEventListener('click', cmEnterBuilding);
+  document.getElementById('cm-back-btn').addEventListener('click', cmBackToMap);
 }
 
 window.cmBackToMap = function() {
@@ -297,8 +316,8 @@ window.cmBackToMap = function() {
   });
 };
 
-window.cmPrev = () => { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx-1+n)%n; cmRender(); };
-window.cmNext = () => { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx+1)%n; cmRender(); };
+function cmPrev() { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx-1+n)%n; cmRender(); }
+function cmNext() { const n=cm.activeDistrict.buildings.length; cm.carouselIdx=(cm.carouselIdx+1)%n; cmRender(); }
 
 window.cmEnterBuilding = function() {
   const b = cm.activeDistrict.buildings[cm.carouselIdx];
